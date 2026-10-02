@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" role="img" aria-label="Three Clash Royale style crowns">
+<defs>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff2a3"/><stop offset=".25" stop-color="#ffd94a"/><stop offset=".65" stop-color="#f6a900"/><stop offset="1" stop-color="#c97900"/>
+  </linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#35b9ff"/><stop offset=".55" stop-color="#0788e9"/><stop offset="1" stop-color="#0054a7"/>
+  </linearGradient>
+  <linearGradient id="goldEdge" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff7bd"/><stop offset=".45" stop-color="#ffcc2e"/><stop offset="1" stop-color="#b86600"/>
+  </linearGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000" flood-opacity=".55"/>
+  </filter>
+  <g id="crown">
+    <path d="M35 102 L52 35 L118 72 L150 18 L183 72 L249 35 L266 102 Z" fill="url(#gold)" stroke="#d47b00" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M42 103 Q150 127 258 103 L251 143 Q150 168 49 143 Z" fill="url(#blue)" stroke="#075aa9" stroke-width="7"/>
+    <path d="M58 108 Q150 127 242 108" fill="none" stroke="#67c9ff" stroke-width="7" opacity=".65"/>
+    <path d="M44 145 Q150 174 256 145" fill="none" stroke="#004d96" stroke-width="9" opacity=".8"/>
+    <path d="M35 102 L52 35 L118 72 L150 18 L183 72 L249 35 L266 102" fill="none" stroke="url(#goldEdge)" stroke-width="7" stroke-linejoin="round"/>
+    <rect x="141" y="73" width="18" height="18" rx="3" fill="#ffe47b" stroke="#b96c00" stroke-width="4" transform="rotate(45 150 82)"/>
+  </g>
+</defs>
+<g filter="url(#shadow)">
+  <use href="#crown" transform="translate(15 115) scale(.92) rotate(-7 150 90)"/>
+  <use href="#crown" transform="translate(300 28) scale(1.12)"/>
+  <use href="#crown" transform="translate(615 115) scale(.92) rotate(7 150 90)"/>
+</g>
+</svg>
