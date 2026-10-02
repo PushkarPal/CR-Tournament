@@ -646,3 +646,85 @@ header {
   object-fit: contain;
   filter: drop-shadow(0 10px 16px rgba(0,0,0,.65));
 }
+
+
+/* --- Clash Royale match-card styling ----------------------------------- */
+.match {
+  background:
+    linear-gradient(180deg, rgba(34, 75, 126, 0.98) 0%, rgba(13, 34, 66, 0.99) 46%, rgba(8, 24, 48, 1) 100%);
+  border: 3px solid #8fb9e3;
+  border-radius: 11px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.18),
+    inset 0 -5px 0 rgba(0,0,0,.28),
+    0 0 0 2px #071526,
+    0 7px 14px rgba(0,0,0,.8);
+}
+
+.match::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbd34b, transparent);
+  opacity: .9;
+  pointer-events: none;
+}
+
+.team {
+  min-height: 44px;
+  padding: 9px 12px;
+  font-family: var(--font-title);
+  font-size: clamp(16px, 1.05vw, 18px);
+  line-height: 1.05;
+  letter-spacing: .2px;
+  color: #fff;
+  text-shadow: var(--cr-text-shadow-sm);
+  background: linear-gradient(180deg, rgba(22, 51, 91, .72), rgba(9, 28, 56, .86));
+  border-bottom: 2px solid #6e93bb;
+}
+
+.team:last-child {
+  border-bottom: none;
+}
+
+.match.ready {
+  border-color: #f2c94c;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.2),
+    inset 0 -5px 0 rgba(0,0,0,.3),
+    0 0 0 2px #071526,
+    0 0 16px rgba(251, 206, 20, .32),
+    0 7px 14px rgba(0,0,0,.85);
+}
+
+.match.ready .team:hover {
+  background: linear-gradient(180deg, rgba(62, 111, 170, .95), rgba(18, 52, 91, .98));
+  box-shadow: inset 0 0 0 2px rgba(251,206,20,.28);
+}
+
+.team-empty {
+  color: rgba(255,255,255,.38);
+  text-shadow: 1px 1px 0 #000;
+}
+
+.team.winner {
+  color: #ffe35b;
+  background: linear-gradient(180deg, rgba(91, 69, 16, .9), rgba(45, 34, 8, .92));
+  text-shadow: 1px 1px 0 #000, 0 0 8px rgba(251,206,20,.35);
+}
+
+.team.loser {
+  opacity: .38;
+  filter: grayscale(100%);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team {
+    min-height: 40px;
+    padding: 7px 10px;
+    font-size: 16px;
+  }
+}
