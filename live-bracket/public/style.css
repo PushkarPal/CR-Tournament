@@ -1135,3 +1135,10 @@ button,
     padding: 8px 13px;
   }
 }
+
+
+/* --- Extra breathing room between match pairs -------------------------- */
+/* The gap inside each two-player board stays unchanged. */
+.col {
+  row-gap: 22px;
+}
