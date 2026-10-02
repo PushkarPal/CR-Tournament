@@ -1142,3 +1142,18 @@ button,
 .col {
   row-gap: 22px;
 }
+
+
+/* --- Final compact viewport spacing polish ----------------------------- */
+.col {
+  row-gap: 28px;
+}
+
+.bracket-wrapper {
+  padding-top: 44px;
+}
+
+.brand-image {
+  width: min(450px, 44vw);
+  max-height: 115px;
+}
