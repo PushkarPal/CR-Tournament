@@ -1,5 +1,78 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const socket = io(); // Connect to Socket.io server
+  const socket = typeof window.io === "function" ? window.io() : null;
+  const STORAGE_KEY = "cr-tournament-state-v1";
+  let localMatches = [];
+
+  function emit(event, data) {
+    if (socket) {
+      emit(event, data);
+      return;
+    }
+    if (event === "start_tournament") {
+      players = data;
+      localMatches = [];
+      setupScreen.classList.add("hidden");
+      bracketScreen.classList.remove("hidden");
+      buildBracket();
+      saveLocalState();
+    } else if (event === "resolve_match") {
+      const exists = localMatches.some(m => m.side === data.side && m.round === data.round && m.index === data.index);
+      if (!exists) {
+        localMatches.push(data);
+        resolveMatchLocally(data.side, data.round, data.index, data.winningSlotIndex, data.winnerName);
+        saveLocalState();
+      }
+    } else if (event === "reset_tournament") {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    } else if (event === "edit_players") {
+      localMatches = [];
+      bracketScreen.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+      saveLocalState();
+    }
+  }
+
+  function on(event, handler) {
+    if (socket) on(event, handler);
+  }
+
+  function saveLocalState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      status: bracketScreen.classList.contains("hidden") ? "SETUP" : "IN_PROGRESS",
+      players,
+      matches: localMatches
+    }));
+  }
+
+  function restoreLocalState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      players = Array.isArray(state.players) ? state.players : [];
+      localMatches = Array.isArray(state.matches) ? state.matches : [];
+
+      if (state.status === "IN_PROGRESS" && players.length === 16) {
+        setupScreen.classList.add("hidden");
+        bracketScreen.classList.remove("hidden");
+        buildBracket();
+        const original = animateLine;
+        animateLine = (id, cb) => cb && cb();
+        localMatches.forEach(m => resolveMatchLocally(m.side, m.round, m.index, m.winningSlotIndex, m.winnerName));
+        animateLine = original;
+        setTimeout(drawLines, 100);
+      } else {
+        players.forEach((name, i) => {
+          const input = document.getElementById(`p${i + 1}`);
+          if (input) input.value = name;
+        });
+      }
+    } catch (error) {
+      console.warn("Could not restore tournament state:", error);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
 
   const inputsGrid = document.getElementById("inputs-grid");
   const setupScreen = document.getElementById("setup-screen");
@@ -30,16 +103,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if(!val) return alert("You must summon all 16 players to begin the tournament!");
       newPlayers.push(val);
     }
-    socket.emit('start_tournament', newPlayers);
+    emit('start_tournament', newPlayers);
   });
 
   document.getElementById("btn-edit").addEventListener("click", () => {
-    socket.emit('edit_players');
+    emit('edit_players');
   });
 
   document.getElementById("btn-reset").addEventListener("click", () => {
     if(confirm("Are you sure you want to restart the entire tournament?")) {
-        socket.emit('reset_tournament');
+        emit('reset_tournament');
     }
   });
 
@@ -107,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const parentMatch = document.getElementById(`m-${side}-${round}-${index}`);
       if (!parentMatch.classList.contains("ready") || parentMatch.classList.contains("resolved")) return;
       
-      socket.emit('resolve_match', {
+      emit('resolve_match', {
         side, round, index, winningSlotIndex: slot, winnerName: nameSpan.textContent
       });
     });
@@ -260,8 +333,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if(!bracketScreen.classList.contains("hidden")) drawLines();
   });
 
-  // Socket event handlers
-  socket.on('sync_state', (state) => {
+  // Realtime server handlers are used when the Node server is running.
+  // GitHub Pages falls back to browser-local persistence.
+
+  on('sync_state', (state) => {
     players = state.players;
     if (state.status === 'SETUP') {
         setupScreen.classList.remove("hidden");
@@ -287,24 +362,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  socket.on('tournament_started', (newPlayers) => {
+  on('tournament_started', (newPlayers) => {
     players = newPlayers;
     setupScreen.classList.add("hidden");
     bracketScreen.classList.remove("hidden");
     buildBracket();
   });
 
-  socket.on('match_resolved', (data) => {
+  on('match_resolved', (data) => {
     resolveMatchLocally(data.side, data.round, data.index, data.winningSlotIndex, data.winnerName);
   });
 
-  socket.on('tournament_reset', () => {
+  on('tournament_reset', () => {
     location.reload();
   });
 
-  socket.on('tournament_edit', () => {
+  on('tournament_edit', () => {
     bracketScreen.classList.add("hidden");
     setupScreen.classList.remove("hidden");
   });
 
+
+  if (!socket) restoreLocalState();
 });
