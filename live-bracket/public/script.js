@@ -132,7 +132,36 @@ document.addEventListener("DOMContentLoaded", () => {
     createMatch('C', 4, 0, null, null, true);
     
     registerConnections();
-    setTimeout(drawLines, 150); 
+    setTimeout(drawLines, 150);
+    updateCurrentRound();
+  }
+
+  function updateCurrentRound() {
+    const indicator = document.getElementById("current-round");
+    const splash = document.getElementById("champion-splash");
+    if (!indicator) return;
+
+    if (splash && splash.classList.contains("show")) {
+      indicator.textContent = "TOURNAMENT COMPLETE";
+      return;
+    }
+
+    const rounds = [
+      { round: 1, label: "ROUND OF 16" },
+      { round: 2, label: "QUARTER-FINALS" },
+      { round: 3, label: "SEMI-FINALS" },
+      { round: 4, label: "GRAND FINAL" }
+    ];
+
+    for (const item of rounds) {
+      const readyMatches = document.querySelectorAll(
+        `.match.ready[id^="m-L-${item.round}-"], .match.ready[id^="m-R-${item.round}-"], .match.ready[id^="m-C-${item.round}-"]`
+      );
+      if (readyMatches.length > 0) {
+        indicator.textContent = item.label;
+        return;
+      }
+    }
   }
 
   function createMatch(side, round, index, p1, p2, isFinal=false) {
@@ -224,6 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nextMatch.classList.add("ready");
           }
       }
+      updateCurrentRound();
     });
   }
 
@@ -231,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const splash = document.getElementById("champion-splash");
     document.getElementById("champion-name").textContent = name;
     splash.classList.add("show");
+    updateCurrentRound();
   }
 
   function registerConnections() {
