@@ -21,9 +21,11 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--text-main);
-  background: linear-gradient(rgba(11, 34, 65, 0.3), rgba(11, 34, 65, 0.6)), 
-              url('bg.jpg') center/cover no-repeat fixed;
-  background-color: var(--cr-blue-dark);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 86, 145, .75), transparent 38%),
+    radial-gradient(circle at 15% 85%, rgba(20, 62, 110, .8), transparent 35%),
+    linear-gradient(180deg, #102e55 0%, #071a31 55%, #030b15 100%);
+  background-attachment: fixed;
   overflow-x: auto;
 }
 
@@ -54,6 +56,38 @@ header {
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 8px 28px;
+  color: #fff;
+  text-align: center;
+  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
+  animation: float 4s ease-in-out infinite;
+  user-select: none;
+}
+.brand-main {
+  font-family: var(--font-title);
+  font-size: clamp(48px, 6vw, 76px);
+  line-height: .9;
+  letter-spacing: 2px;
+  color: #f7d23a;
+  -webkit-text-stroke: 3px #10243d;
+  text-shadow: 0 5px 0 #7b4b00, 0 8px 12px rgba(0,0,0,.75);
+}
+.brand-sub {
+  margin-top: 8px;
+  font-family: var(--font-title);
+  font-size: 22px;
+  letter-spacing: 5px;
+  color: #fff;
+  text-shadow: var(--cr-text-shadow-sm);
 }
 
 .subtitle {
