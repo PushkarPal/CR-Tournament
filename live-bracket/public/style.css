@@ -1318,3 +1318,63 @@ button,
   color: #a7b1bc;
   text-shadow: 1px 2px 0 #07101a;
 }
+
+
+/* --- Bracket line & spacing polish ------------------------------------- */
+/* Unresolved/future connections: dark metallic blue. */
+.line {
+  stroke: #5f7692;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  opacity: .9;
+}
+
+/* Resolved advancement path: bright Clash Royale gold. */
+.line-active {
+  stroke: #fbd34b;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  filter:
+    drop-shadow(0 0 4px rgba(251,211,75,.95))
+    drop-shadow(0 0 9px rgba(251,206,20,.55));
+  stroke-dasharray: none;
+  animation: none;
+}
+
+/* Bring the two opponents in one matchup closer together. */
+.match {
+  gap: 4px;
+}
+
+/* Give separate matchups a little more visual breathing room. */
+.col {
+  row-gap: 34px;
+}
+
+/* Lower the two Grand Final slots slightly so they frame the central
+   Clash Royale artwork instead of sitting directly over the logo text. */
+.col-center {
+  padding-top: 22px;
+}
+
+.col-center .match {
+  transform: translateY(18px);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .match {
+    gap: 4px;
+  }
+
+  .col {
+    row-gap: 30px;
+  }
+
+  .col-center {
+    padding-top: 18px;
+  }
+
+  .col-center .match {
+    transform: translateY(12px);
+  }
+}
