@@ -1170,3 +1170,42 @@ button,
   display: none;
   content: none;
 }
+
+
+/* --- Current round indicator in the open space below the bracket ------- */
+.current-round {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 8px 24px 7px;
+  min-width: 280px;
+  text-align: center;
+  border: 3px solid #d7a52e;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(35,91,143,.96), rgba(7,31,59,.98)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 3px, transparent 3px 8px);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.2),
+    0 0 0 2px #061526,
+    0 5px 12px rgba(0,0,0,.72),
+    0 0 12px rgba(251,206,20,.2);
+  color: #ffe05a;
+  font-family: var(--font-title);
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 1.4px;
+  text-shadow: 2px 2px 0 #000, 0 0 7px rgba(251,206,20,.25);
+  pointer-events: none;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .current-round {
+    bottom: 2px;
+    padding: 6px 20px 5px;
+    min-width: 250px;
+    font-size: 21px;
+  }
+}
