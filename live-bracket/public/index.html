@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Bracket — Clash Royale Championship</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <!-- Placeholder logo image -->
+    <img src="logo.png" alt="Clash Royale Logo" class="main-logo" onerror="this.style.display='none'">
+    <div class="subtitle">Live Tournament Bracket</div>
+  </header>
+
+  <div id="setup-screen" class="setup-container">
+    <h2>Enter Challengers</h2>
+    <p>Summon the 16 players to generate the grand bracket.</p>
+    <div id="inputs-grid" class="grid-names"></div>
+    <div class="actions">
+      <button class="btn-secondary" id="btn-fill">Auto-Fill Demo</button>
+      <button class="btn-primary" id="btn-start">Battle Start!</button>
+    </div>
+  </div>
+
+  <div id="bracket-screen" class="hidden" style="width: 100%;">
+    <div class="bracket-header">
+      <div id="status-text" class="status">ARENA 1: Round of 16</div>
+      <div style="display:flex; gap:16px;">
+        <button class="btn-secondary" style="padding: 10px 20px; font-size: 16px;" id="btn-edit">Edit Players</button>
+        <button class="btn-danger" style="padding: 10px 20px; font-size: 16px;" id="btn-reset">Reset</button>
+      </div>
+    </div>
+    
+    <div class="bracket-wrapper" id="bracket-wrapper">
+      <svg id="lines-layer"></svg>
+      <div class="col" id="col-L-1"></div>
+      <div class="col" id="col-L-2"></div>
+      <div class="col" id="col-L-3"></div>
+      <div class="col col-center" id="col-C-4"></div>
+      <div class="col" id="col-R-3"></div>
+      <div class="col" id="col-R-2"></div>
+      <div class="col" id="col-R-1"></div>
+      
+      <div id="champion-splash" class="champion-reveal">
+        <div class="rays"></div>
+        <div class="trophy">🏆</div>
+        <h3>Grand Champion</h3>
+        <div class="champ-name" id="champion-name">Name</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
