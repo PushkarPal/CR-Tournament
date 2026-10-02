@@ -728,3 +728,43 @@ header {
     font-size: 16px;
   }
 }
+
+
+/* --- Match typography clarity ------------------------------------------ */
+.team {
+  font-family: var(--font-title);
+  font-size: clamp(16px, 1.05vw, 18px);
+  font-weight: 400;
+  letter-spacing: 0.6px;
+  line-height: 1.15;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  text-shadow:
+    1px 1px 0 #000,
+    -1px -1px 0 rgba(0,0,0,.55),
+    0 2px 0 #000;
+}
+
+.team-empty {
+  letter-spacing: 1px;
+  line-height: 1.15;
+}
+
+.status,
+button,
+.subtitle,
+.setup-container h2,
+.input-group label,
+.champion-reveal h3,
+.champion-reveal .champ-name {
+  letter-spacing: 1px;
+  line-height: 1.15;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team {
+    font-size: 16px;
+    letter-spacing: 0.55px;
+    line-height: 1.15;
+  }
+}
