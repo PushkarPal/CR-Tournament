@@ -843,3 +843,157 @@ button,
     0 0 0 2px #071526,
     0 7px 14px rgba(0,0,0,.75);
 }
+
+
+/* --- Clash Royale wooden name boards ----------------------------------- */
+/* Aesthetic-only treatment: keeps the existing bracket dimensions/layout. */
+.team {
+  position: relative;
+  overflow: hidden;
+  border-bottom-color: #6f451f;
+  background:
+    linear-gradient(180deg, rgba(255,220,145,.12), transparent 22%, rgba(53,25,8,.16) 78%, rgba(20,9,3,.32)),
+    repeating-linear-gradient(7deg, rgba(255,235,170,.055) 0 2px, transparent 2px 8px),
+    repeating-linear-gradient(173deg, rgba(61,25,5,.14) 0 1px, transparent 1px 13px),
+    linear-gradient(180deg, #9a612d 0%, #75431f 48%, #4f2912 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,232,174,.28),
+    inset 0 -3px 0 rgba(31,12,2,.38);
+}
+
+.team::before {
+  content: "";
+  position: absolute;
+  inset: 3px 4px;
+  border-radius: 5px;
+  border: 1px solid rgba(255,219,140,.16);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(255,225,160,.045) 7px 8px),
+    repeating-linear-gradient(92deg, transparent 0 24px, rgba(35,13,3,.08) 24px 26px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.team > * {
+  position: relative;
+  z-index: 1;
+}
+
+.match {
+  border-color: #b9854b;
+  box-shadow:
+    inset 0 2px 0 rgba(255,244,205,.22),
+    inset 0 -5px 0 rgba(40,17,5,.4),
+    0 0 0 2px #071526,
+    0 7px 14px rgba(0,0,0,.82);
+}
+
+.match.ready {
+  border-color: #e3b85a;
+  box-shadow:
+    inset 0 2px 0 rgba(255,244,205,.26),
+    inset 0 -5px 0 rgba(40,17,5,.42),
+    0 0 0 2px #071526,
+    0 0 16px rgba(251,206,20,.3),
+    0 7px 14px rgba(0,0,0,.86);
+}
+
+.match:not(.ready) {
+  border-color: #8c6a48;
+}
+
+.team-empty {
+  color: rgba(255,239,206,.46);
+  text-shadow: 1px 1px 0 #251004;
+}
+
+.team.winner {
+  color: #fff0a0;
+  background:
+    linear-gradient(180deg, rgba(183,132,40,.38), rgba(73,38,8,.62)),
+    repeating-linear-gradient(7deg, rgba(255,235,170,.06) 0 2px, transparent 2px 8px),
+    linear-gradient(180deg, #a76b28 0%, #6d3b17 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,218,93,.22),
+    inset 0 3px 0 rgba(255,244,184,.2),
+    0 0 12px rgba(251,206,20,.18);
+}
+
+/* --- Three-crown Grand Champion reveal ------------------------------- */
+.champion-reveal {
+  padding: 34px 54px 38px;
+  min-width: 430px;
+  border: 5px solid #e4b64f;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(71,39,15,.97), rgba(35,17,7,.98)),
+    repeating-linear-gradient(8deg, rgba(255,218,132,.05) 0 3px, transparent 3px 12px);
+  box-shadow:
+    inset 0 0 0 3px rgba(255,231,154,.16),
+    inset 0 -12px 0 rgba(15,6,2,.32),
+    0 0 0 6px #000,
+    0 0 65px rgba(251,206,20,.62),
+    0 20px 45px rgba(0,0,0,.75);
+}
+
+.champion-crowns {
+  display: block;
+  width: min(390px, 70vw);
+  height: auto;
+  margin: -6px auto 2px;
+  filter: drop-shadow(0 8px 7px rgba(0,0,0,.62));
+}
+
+.champion-win-label {
+  display: inline-block;
+  margin: 2px auto 8px;
+  padding: 5px 14px 4px;
+  border-radius: 7px;
+  border: 2px solid #d09a35;
+  background: linear-gradient(180deg, #6f4319, #3b1d09);
+  color: #ffe477;
+  font-family: var(--font-title);
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 0 #000;
+  box-shadow: inset 0 1px 0 rgba(255,238,171,.2);
+}
+
+.champion-reveal h3 {
+  margin: 5px 0 10px;
+  color: #ffd84d;
+  font-size: 28px;
+  text-shadow: 2px 2px 0 #291000, 0 0 9px rgba(251,206,20,.3);
+}
+
+.champion-reveal .champ-name {
+  display: inline-block;
+  max-width: 100%;
+  padding: 10px 22px 12px;
+  border: 3px solid #c58a39;
+  border-radius: 9px;
+  background:
+    repeating-linear-gradient(5deg, rgba(255,218,135,.055) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, #9a612c, #603314);
+  color: #fff5c7;
+  font-size: 48px;
+  text-shadow: 2px 2px 0 #291000, 0 3px 0 #000;
+  box-shadow:
+    inset 0 2px 0 rgba(255,235,165,.25),
+    inset 0 -4px 0 rgba(35,12,2,.3),
+    0 6px 12px rgba(0,0,0,.45);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .champion-reveal {
+    padding: 26px 44px 30px;
+  }
+
+  .champion-crowns {
+    width: 330px;
+  }
+
+  .champion-reveal .champ-name {
+    font-size: 42px;
+  }
+}
