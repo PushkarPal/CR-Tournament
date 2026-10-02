@@ -1449,3 +1449,70 @@ button,
     font-size: 14px;
   }
 }
+
+
+/* --- Readability pass: cleaner player-name typography ------------------ */
+/* Keep the existing cards and bracket geometry; reduce visual noise only. */
+.team {
+  font-size: clamp(15px, 1vw, 17px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: .2px;
+  text-shadow:
+    1px 1px 0 #06101c,
+    0 2px 0 rgba(0,0,0,.72);
+}
+
+.team .player-name {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 8px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Keep the esports detail, but make it a quiet badge instead of a
+   competing emoji-sized visual element. */
+.team .crown-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%) scale(.72);
+  width: 12px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1;
+  opacity: .72;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.8));
+}
+
+.team.winner .crown-icon {
+  transform: translateY(-50%) scale(.82);
+  opacity: 1;
+}
+
+.team-empty .crown-icon {
+  opacity: .2;
+}
+
+.team.team-empty .player-name {
+  color: #aeb8c3;
+  text-shadow:
+    1px 1px 0 #07101a,
+    0 1px 0 rgba(0,0,0,.55);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team {
+    font-size: 15px;
+    line-height: 1.1;
+  }
+
+  .team .crown-icon {
+    left: 7px;
+    transform: translateY(-50%) scale(.68);
+  }
+}
