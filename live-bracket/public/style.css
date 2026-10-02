@@ -782,3 +782,15 @@ button,
     padding: 9px 11px;
   }
 }
+
+
+/* --- Give bracket columns more breathing room without shrinking cards --- */
+.bracket-wrapper,
+.bracket-header {
+  max-width: 1560px;
+}
+
+.bracket-wrapper {
+  padding-left: 6px;
+  padding-right: 6px;
+}
