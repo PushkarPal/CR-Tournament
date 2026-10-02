@@ -1535,3 +1535,20 @@ button,
 .team .player-name {
   color: #ffffff;
 }
+
+
+/* --- Clean player-name text: no glow ------------------------------- */
+.team .player-name {
+  color: #ffffff;
+  text-shadow: none;
+  filter: none;
+}
+
+.team:not(.team-empty) .player-name {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.team.team-empty .player-name {
+  text-shadow: none;
+}
