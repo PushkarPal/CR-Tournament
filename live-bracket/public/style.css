@@ -391,3 +391,106 @@ button {
   font-size: 52px; font-weight: normal; color: white; margin: 0;
   text-shadow: var(--cr-text-shadow);
 }
+
+
+/* --- Viewport-fit layout -------------------------------------------------
+   Keep the full tournament bracket inside the browser viewport.
+   The bracket remains wide enough for desktop screens, but never forces
+   horizontal scrolling on normal laptop/desktop resolutions.
+--------------------------------------------------------------------------- */
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.app-container {
+  width: 100%;
+  min-width: 0;
+  padding: 16px 24px 28px;
+}
+
+.bracket-header {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto 18px;
+  padding: 12px 22px;
+}
+
+.bracket-wrapper {
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  height: clamp(500px, calc(100vh - 190px), 620px);
+}
+
+.col {
+  width: clamp(145px, 12vw, 190px);
+}
+
+.col-center {
+  width: clamp(210px, 17vw, 260px);
+}
+
+.team {
+  min-height: 44px;
+  padding: 9px 10px;
+  font-size: clamp(13px, 1vw, 15px);
+}
+
+.match {
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .app-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .bracket-wrapper {
+    height: clamp(470px, calc(100vh - 180px), 580px);
+  }
+
+  .col {
+    width: clamp(125px, 14vw, 160px);
+  }
+
+  .col-center {
+    width: clamp(180px, 18vw, 220px);
+  }
+
+  .team {
+    min-height: 40px;
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .status {
+    font-size: 24px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 9px 18px;
+  }
+}
+
+@media (max-width: 900px) {
+  /* On smaller screens the bracket can still scroll horizontally rather
+     than being squeezed until the match cards become unusable. */
+  html,
+  body {
+    overflow-x: auto;
+  }
+
+  .app-container {
+    min-width: 980px;
+    width: 980px;
+  }
+
+  .bracket-wrapper {
+    min-width: 940px;
+  }
+}
