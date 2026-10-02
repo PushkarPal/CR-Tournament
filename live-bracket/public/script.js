@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function emit(event, data) {
     if (socket) {
-      emit(event, data);
+      socket.emit(event, data);
       return;
     }
     if (event === "start_tournament") {
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function on(event, handler) {
-    if (socket) on(event, handler);
+    if (socket) socket.on(event, handler);
   }
 
   function saveLocalState() {
@@ -93,6 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-fill").addEventListener("click", () => {
     const names = ["OJ", "Surgical Goblin", "Morten", "B-rad", "Mohamed Light", "Mugi", "Pompeyo", "Chief Pat", "Ash", "SirTag", "Boss", "ErnieC3", "Kashman", "Lex", "Vulkan", "ClashWithZane"];
     for(let i=1; i<=16; i++) document.getElementById(`p${i}`).value = names[i-1] || `Player ${i}`;
+  });
+
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    const confirmed = confirm("Reset the tournament and return to player setup? This will clear the current match progress.");
+    if (confirmed) emit("reset_tournament");
   });
 
   document.getElementById("btn-start").addEventListener("click", () => {
