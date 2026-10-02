@@ -137,31 +137,38 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateCurrentRound() {
-    const indicator = document.getElementById("current-round");
     const splash = document.getElementById("champion-splash");
-    if (!indicator) return;
+    const rounds = [1, 2, 3, 4];
 
-    if (splash && splash.classList.contains("show")) {
-      indicator.textContent = "TOURNAMENT COMPLETE";
-      return;
-    }
+    let activeRound = 5;
 
-    const rounds = [
-      { round: 1, label: "ROUND OF 16" },
-      { round: 2, label: "QUARTER-FINALS" },
-      { round: 3, label: "SEMI-FINALS" },
-      { round: 4, label: "GRAND FINAL" }
-    ];
-
-    for (const item of rounds) {
-      const readyMatches = document.querySelectorAll(
-        `.match.ready[id^="m-L-${item.round}-"], .match.ready[id^="m-R-${item.round}-"], .match.ready[id^="m-C-${item.round}-"]`
-      );
-      if (readyMatches.length > 0) {
-        indicator.textContent = item.label;
-        return;
+    if (!(splash && splash.classList.contains("show"))) {
+      for (const round of rounds) {
+        const readyMatches = document.querySelectorAll(
+          `.match.ready[id^="m-L-${round}-"], .match.ready[id^="m-R-${round}-"], .match.ready[id^="m-C-${round}-"]`
+        );
+        if (readyMatches.length > 0) {
+          activeRound = round;
+          break;
+        }
       }
     }
+
+    document.querySelectorAll(".col").forEach(col => {
+      const match = col.id.match(/-(\\d+)$/);
+      if (!match) return;
+
+      const round = Number(match[1]);
+      col.classList.remove("round-active", "round-completed", "round-future");
+
+      if (round < activeRound) {
+        col.classList.add("round-completed");
+      } else if (round === activeRound) {
+        col.classList.add("round-active");
+      } else {
+        col.classList.add("round-future");
+      }
+    });
   }
 
   function createMatch(side, round, index, p1, p2, isFinal=false) {
