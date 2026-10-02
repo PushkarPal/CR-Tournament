@@ -1157,3 +1157,9 @@ button,
   width: min(450px, 44vw);
   max-height: 115px;
 }
+
+
+/* --- Slight downward bracket shift ------------------------------------- */
+.bracket-wrapper {
+  transform: translateY(14px);
+}
