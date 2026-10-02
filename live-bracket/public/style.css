@@ -768,3 +768,17 @@ button,
     line-height: 1.15;
   }
 }
+
+
+/* --- Slightly larger match cards --------------------------------------- */
+.team {
+  min-height: 50px;
+  padding: 11px 13px;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team {
+    min-height: 46px;
+    padding: 9px 11px;
+  }
+}
