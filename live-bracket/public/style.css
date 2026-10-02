@@ -21,9 +21,14 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--text-main);
-  background:
+  background-image:
     linear-gradient(rgba(3, 12, 25, 0.48), rgba(3, 12, 25, 0.72)),
-    url('./cr-bg.jpg') center center / cover no-repeat fixed;
+    url('https://www.pngkey.com/png/detail/135-1354340_kings-deck-clash-royale-league.png'),
+    url('./cr-bg.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   overflow-x: auto;
 }
 
