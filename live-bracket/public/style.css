@@ -630,3 +630,19 @@ header {
     font-size: 12px;
   }
 }
+
+
+/* --- Image logo --------------------------------------------------------- */
+.brand-logo {
+  min-height: 88px;
+  padding: 2px 18px;
+}
+
+.brand-image {
+  display: block;
+  width: min(390px, 38vw);
+  max-height: 100px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,.65));
+}
