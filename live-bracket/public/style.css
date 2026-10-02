@@ -492,3 +492,136 @@ body {
     min-width: 940px;
   }
 }
+
+
+/* --- Final desktop viewport tuning -------------------------------------- */
+body {
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.app-container {
+  padding: 10px 18px 20px;
+}
+
+header {
+  margin-bottom: 8px;
+}
+
+.brand-logo {
+  min-height: 88px;
+  padding: 4px 18px;
+}
+
+.brand-main {
+  font-size: clamp(42px, 4.2vw, 62px);
+  line-height: .88;
+  letter-spacing: 1px;
+  -webkit-text-stroke: 2px #10243d;
+  text-shadow: 0 4px 0 #7b4b00, 0 7px 10px rgba(0,0,0,.75);
+}
+
+.brand-sub {
+  margin-top: 5px;
+  font-size: 17px;
+  letter-spacing: 4px;
+}
+
+.subtitle {
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+.bracket-header {
+  max-width: 1500px;
+  min-height: 58px;
+  margin-bottom: 12px;
+  padding: 8px 18px;
+}
+
+.status {
+  font-size: clamp(20px, 1.7vw, 26px);
+}
+
+.bracket-wrapper {
+  max-width: 1500px;
+  height: clamp(500px, calc(100vh - 210px), 600px);
+}
+
+.col {
+  width: clamp(140px, 11.5vw, 185px);
+}
+
+.col-center {
+  width: clamp(200px, 16vw, 250px);
+  padding-top: 8px;
+}
+
+.team {
+  min-height: 40px;
+  padding: 8px 9px;
+  font-size: clamp(12px, .9vw, 14px);
+}
+
+.match {
+  border-radius: 9px;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .app-container {
+    padding-top: 6px;
+    padding-bottom: 12px;
+  }
+
+  .brand-logo {
+    min-height: 70px;
+  }
+
+  .brand-main {
+    font-size: clamp(36px, 4vw, 52px);
+  }
+
+  .brand-sub {
+    font-size: 14px;
+    margin-top: 3px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .bracket-header {
+    min-height: 50px;
+    padding: 6px 14px;
+    margin-bottom: 8px;
+  }
+
+  .bracket-wrapper {
+    height: calc(100vh - 165px);
+    min-height: 440px;
+  }
+
+  .team {
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 901px) {
+  .col {
+    width: clamp(125px, 13vw, 160px);
+  }
+
+  .col-center {
+    width: clamp(180px, 17vw, 220px);
+  }
+
+  .team {
+    min-height: 38px;
+    padding: 7px;
+    font-size: 12px;
+  }
+}
