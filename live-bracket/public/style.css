@@ -1454,7 +1454,7 @@ button,
 /* --- Readability pass: cleaner player-name typography ------------------ */
 /* Keep the existing cards and bracket geometry; reduce visual noise only. */
 .team {
-  font-size: clamp(15px, 1vw, 17px);
+  font-size: 19px;
   font-weight: 900;
   line-height: 1.12;
   letter-spacing: .2px;
