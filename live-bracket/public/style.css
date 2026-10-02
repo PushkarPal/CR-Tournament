@@ -1209,3 +1209,80 @@ button,
     font-size: 21px;
   }
 }
+
+
+/* --- Player card UI polish --------------------------------------------- */
+/* Visual-only: preserves card dimensions, bracket geometry, and gameplay. */
+.team {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  font-family: var(--font-title);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: .45px;
+  text-align: center;
+  text-shadow:
+    1px 2px 0 #000,
+    0 3px 0 rgba(0,0,0,.85);
+  background:
+    linear-gradient(180deg, rgba(67,133,196,.16), transparent 30%, rgba(0,8,24,.22) 100%),
+    repeating-linear-gradient(7deg, rgba(170,215,255,.035) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, #245f96 0%, #164474 48%, #0c315b 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.18),
+    inset 0 -4px 7px rgba(0,7,22,.42),
+    inset 2px 0 5px rgba(255,255,255,.035),
+    0 4px 0 #071526,
+    0 7px 13px rgba(0,0,0,.72);
+}
+
+.team .player-name {
+  display: block;
+  max-width: 100%;
+  text-align: center;
+}
+
+.team .crown-icon {
+  flex: 0 0 auto;
+  width: 15px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1;
+  opacity: .72;
+  transform: scale(.9);
+  filter: drop-shadow(1px 2px 1px rgba(0,0,0,.75));
+}
+
+.team.winner .crown-icon {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.team-empty .crown-icon {
+  opacity: .28;
+}
+
+.match {
+  filter: drop-shadow(0 5px 7px rgba(0,0,0,.5));
+}
+
+.match.ready .team:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team {
+    min-height: 46px;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .team .crown-icon {
+    width: 14px;
+    font-size: 12px;
+  }
+}
