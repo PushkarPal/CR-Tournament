@@ -78,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const setupScreen = document.getElementById("setup-screen");
   const bracketScreen = document.getElementById("bracket-screen");
   const svgLayer = document.getElementById("lines-layer");
-  const statusText = document.getElementById("status-text");
   
   let players = [];
   const connectionPaths = []; 
@@ -104,16 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
       newPlayers.push(val);
     }
     emit('start_tournament', newPlayers);
-  });
-
-  document.getElementById("btn-edit").addEventListener("click", () => {
-    emit('edit_players');
-  });
-
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    if(confirm("Are you sure you want to restart the entire tournament?")) {
-        emit('reset_tournament');
-    }
   });
 
   function buildBracket() {
@@ -150,10 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const teamTop = createTeamElement(side, round, index, 0, p1);
     const teamBot = createTeamElement(side, round, index, 1, p2);
-    
-    if(isFinal) {
-      match.innerHTML = `<div style="text-align:center; padding: 8px; font-family:var(--font-title); font-size:18px; color:var(--cr-gold); background:rgba(0,0,0,0.5); border-bottom:2px solid var(--cr-border-silver); text-shadow:1px 1px 0 #000; letter-spacing:1px;">GRAND FINAL</div>`;
-    }
     
     match.appendChild(teamTop);
     match.appendChild(teamBot);
@@ -232,19 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
           
           if (!t1.classList.contains("team-empty") && !t2.classList.contains("team-empty")) {
             nextMatch.classList.add("ready");
-            updateStatusText(nextRound);
           }
       }
     });
   }
 
-  function updateStatusText(round) {
-    const names = {2: "ARENA 2: Quarter-Finals", 3: "ARENA 3: Semi-Finals", 4: "LEGENDARY ARENA: Grand Final"};
-    statusText.textContent = names[round] || "Tournament Ongoing";
-  }
-
   function celebrateChampion(name) {
-    statusText.textContent = "🏆 TOURNAMENT COMPLETE!";
     const splash = document.getElementById("champion-splash");
     document.getElementById("champion-name").textContent = name;
     splash.classList.add("show");
