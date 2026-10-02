@@ -1572,3 +1572,22 @@ button,
   text-shadow: none !important;
   filter: none !important;
 }
+
+
+/* --- Final hard reset for player-name rendering ------------------------ */
+.team,
+.team .player-name {
+  color: #ffffff !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 transparent !important;
+  filter: none !important;
+  paint-order: fill;
+}
+
+.team.team-empty,
+.team.team-empty .player-name {
+  color: #aeb8c3 !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 transparent !important;
+  filter: none !important;
+}
