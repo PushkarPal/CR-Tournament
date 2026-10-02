@@ -22,10 +22,8 @@ body {
   font-family: var(--font-body);
   color: var(--text-main);
   background:
-    radial-gradient(circle at 50% 0%, rgba(34, 86, 145, .75), transparent 38%),
-    radial-gradient(circle at 15% 85%, rgba(20, 62, 110, .8), transparent 35%),
-    linear-gradient(180deg, #102e55 0%, #071a31 55%, #030b15 100%);
-  background-attachment: fixed;
+    linear-gradient(rgba(3, 12, 25, 0.48), rgba(3, 12, 25, 0.72)),
+    url('./cr-bg.jpg') center center / cover no-repeat fixed;
   overflow-x: auto;
 }
 
