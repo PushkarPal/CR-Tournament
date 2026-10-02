@@ -1552,3 +1552,23 @@ button,
 .team.team-empty .player-name {
   text-shadow: none;
 }
+
+
+/* --- Crisp player text: keep shadows/glow off the text rendering layer --- */
+.match {
+  filter: none;
+}
+
+.team .player-name {
+  color: #ffffff;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.team.team-empty .player-name {
+  color: #aeb8c3;
+  text-shadow: none !important;
+  filter: none !important;
+}
