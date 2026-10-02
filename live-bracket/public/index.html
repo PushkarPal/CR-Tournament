@@ -28,23 +28,15 @@
   </div>
 
   <div id="bracket-screen" class="hidden" style="width: 100%;">
-    <div class="bracket-header">
-      <div id="status-text" class="status">ARENA 1: Round of 16</div>
-      <div style="display:flex; gap:16px;">
-        <button class="btn-secondary" style="padding: 10px 20px; font-size: 16px;" id="btn-edit">Edit Players</button>
-        <button class="btn-danger" style="padding: 10px 20px; font-size: 16px;" id="btn-reset">Reset</button>
-      </div>
-    </div>
-    
     <div class="bracket-wrapper" id="bracket-wrapper">
       <svg id="lines-layer"></svg>
-      <div class="col" id="col-L-1"></div>
-      <div class="col" id="col-L-2"></div>
-      <div class="col" id="col-L-3"></div>
-      <div class="col col-center" id="col-C-4"></div>
-      <div class="col" id="col-R-3"></div>
-      <div class="col" id="col-R-2"></div>
-      <div class="col" id="col-R-1"></div>
+      <div class="col round-r16" id="col-L-1"></div>
+      <div class="col round-qf" id="col-L-2"></div>
+      <div class="col round-sf" id="col-L-3"></div>
+      <div class="col col-center round-gf" id="col-C-4"></div>
+      <div class="col round-sf" id="col-R-3"></div>
+      <div class="col round-qf" id="col-R-2"></div>
+      <div class="col round-r16" id="col-R-1"></div>
       
       <div id="champion-splash" class="champion-reveal">
         <div class="rays"></div>
