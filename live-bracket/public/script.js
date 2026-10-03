@@ -123,12 +123,38 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.style.setProperty("--name-font-size", "19px");
     wrapper.style.setProperty("--crown-size", "40px");
 
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
     wrapper.querySelectorAll(".team .player-name").forEach((nameNode) => {
-      if (nameNode.closest(".team")?.classList.contains("team-empty")) {
+      const team = nameNode.closest(".team");
+      if (!team || team.classList.contains("team-empty")) {
         nameNode.style.removeProperty("font-size");
         return;
       }
-      nameNode.style.setProperty("font-size", "19px", "important");
+
+      const text = String(nameNode.textContent || "");
+      const isWinner = team.classList.contains("winner");
+      const available = Math.max(72, teamWidth - 24 - (isWinner ? 47 : 0));
+
+      let size = 19;
+      if (ctx && text) {
+        ctx.font = "19px 'You Blockhead', sans-serif";
+        const width = ctx.measureText(text).width + text.length * 0.15;
+
+        // Names that need wrapping use a deliberately smaller size.
+        // Normal-length names remain at the full 19px size.
+        if (width > available) {
+          size = 17;
+
+          // Give exceptionally long names a little more reduction.
+          if (width > available * 1.55) {
+            size = Math.max(15, 17 * available / width);
+          }
+        }
+      }
+
+      nameNode.style.setProperty("font-size", size.toFixed(2) + "px", "important");
     });
   }
 
