@@ -1884,3 +1884,46 @@ button,
     scroll-behavior: auto !important;
   }
 }
+
+
+/* --- Player-name space reserved for winner badge ---------------------- */
+/* Keep long names clear of the crown instead of letting text wrap beneath it. */
+.team .player-name {
+  width: calc(100% - 34px) !important;
+  max-width: calc(100% - 34px) !important;
+  margin-left: 34px;
+  padding: 0 4px !important;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-align: center;
+}
+
+.team .crown-icon {
+  left: 7px;
+  width: 30px;
+  height: 30px;
+}
+
+.team.winner .crown-icon {
+  width: 30px;
+  height: 30px;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team .player-name {
+    width: calc(100% - 30px) !important;
+    max-width: calc(100% - 30px) !important;
+    margin-left: 30px;
+    padding: 0 3px !important;
+    font-size: 18px !important;
+    letter-spacing: .7px !important;
+  }
+
+  .team .crown-icon,
+  .team.winner .crown-icon {
+    width: 27px;
+    height: 27px;
+    left: 6px;
+  }
+}
