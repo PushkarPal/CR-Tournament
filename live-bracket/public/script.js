@@ -114,12 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrapper = document.getElementById("bracket-wrapper");
     if (!wrapper || !players.length) return;
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Keep every name card exactly the same width. Text adapts to the card,
-    // rather than changing the card size for different player names.
+    // Keep every name card identical. Long player names wrap inside the
+    // fixed card instead of changing the card dimensions.
     const viewportCap = Math.max(150, Math.floor((wrapper.clientWidth - 12) / 7));
     const teamWidth = Math.min(212, viewportCap);
 
@@ -127,37 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.style.setProperty("--name-font-size", "19px");
     wrapper.style.setProperty("--crown-size", "40px");
 
-    const nameNodes = wrapper.querySelectorAll(".team .player-name");
-    nameNodes.forEach((nameNode) => {
-      const team = nameNode.closest(".team");
-      if (!team || team.classList.contains("team-empty")) {
+    wrapper.querySelectorAll(".team .player-name").forEach((nameNode) => {
+      if (nameNode.closest(".team")?.classList.contains("team-empty")) {
         nameNode.style.removeProperty("font-size");
         return;
       }
-
-      const text = String(nameNode.textContent || "");
-      const isWinner = team.classList.contains("winner");
-      const crownSpace = isWinner ? 40 + 7 : 0;
-      const available = Math.max(72, teamWidth - 24 - crownSpace);
-
-      let size = 19;
-      ctx.font = `${size}px 'You Blockhead', sans-serif`;
-      let width = ctx.measureText(text).width + text.length * 0.15;
-
-      // Only shrink names that actually exceed the fixed card.
-      if (width > available) {
-        size = Math.max(12, 19 * available / width);
-        ctx.font = `${size}px 'You Blockhead', sans-serif`;
-        width = ctx.measureText(text).width + text.length * 0.15;
-
-        while (size > 12 && width > available) {
-          size -= 0.25;
-          ctx.font = `${size}px 'You Blockhead', sans-serif`;
-          width = ctx.measureText(text).width + text.length * 0.15;
-        }
-      }
-
-      nameNode.style.setProperty("font-size", size.toFixed(2) + "px", "important");
+      nameNode.style.setProperty("font-size", "19px", "important");
     });
   }
 
