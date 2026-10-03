@@ -2337,3 +2337,30 @@ button,
     max-width: 36px !important;
   }
 }
+
+
+/* --- Wrap only names that exceed the fixed card width ---------------- */
+.bracket-wrapper .team:not(.team-empty) .player-name {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  text-align: center !important;
+  line-height: 1.02 !important;
+  max-height: 40px !important;
+  overflow: hidden !important;
+}
+
+.bracket-wrapper .team.winner .player-name {
+  max-width: calc(100% - 47px) !important;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper .team:not(.team-empty) .player-name {
+    line-height: 1.0 !important;
+    max-height: 34px !important;
+  }
+  .bracket-wrapper .team.winner .player-name {
+    max-width: calc(100% - 43px) !important;
+  }
+}
