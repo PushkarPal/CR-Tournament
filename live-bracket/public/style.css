@@ -2193,3 +2193,20 @@ button,
   font-family: 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif !important;
   font-weight: 900 !important;
 }
+
+
+/* --- Larger winner crown --------------------------------------------- */
+.bracket-wrapper .team.winner .crown-icon {
+  flex-basis: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+}
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper .team.winner .crown-icon {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+  }
+}
