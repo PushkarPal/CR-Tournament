@@ -357,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const x = (i - center) * Math.min(48, width / Math.max(chars.length, 1));
       const t = center ? (i - center) / center : 0;
       const y = -18 * (1 - t * t);
-      const angle = center ? (Math.atan2(-36 * t / center, 2) * 180 / Math.PI) : 0;
+      const angle = center ? (18 * t) : 0;
       span.style.transform = `translate(calc(-50% + ${x}px), ${y}px) rotate(${angle}deg)`;
       node.appendChild(span);
     });
