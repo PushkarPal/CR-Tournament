@@ -140,13 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const crownSpace = isWinner ? 40 + 7 : 0;
       const available = Math.max(72, teamWidth - 24 - crownSpace);
 
-      let size = 21;
+      let size = 20;
       ctx.font = `${size}px 'You Blockhead', sans-serif`;
       let width = ctx.measureText(text).width + text.length * 0.15;
 
       // Only shrink names that actually exceed the fixed card.
       if (width > available) {
-        size = Math.max(12, 21 * available / width);
+        size = Math.max(12, 20 * available / width);
         ctx.font = `${size}px 'You Blockhead', sans-serif`;
         width = ctx.measureText(text).width + text.length * 0.15;
 
