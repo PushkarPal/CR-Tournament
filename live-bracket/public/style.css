@@ -3164,24 +3164,24 @@ button,
 }
 
 .crown-middle {
-  left: 56vw !important;
-  top: 34vh !important;
+  left: 67vw !important;
+  top: 49vh !important;
   width: 11vw !important;
   height: 10vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-left {
-  left: 46vw !important;
-  top: 37vh !important;
+  left: 58vw !important;
+  top: 52vh !important;
   width: 11vw !important;
   height: 10vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-right {
-  left: 66vw !important;
-  top: 37vh !important;
+  left: 76vw !important;
+  top: 52vh !important;
   width: 11vw !important;
   height: 10vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
@@ -3221,17 +3221,17 @@ button,
   }
 
   .crown-middle {
-    left: 56vw !important;
-    top: 35vh !important;
+    left: 67vw !important;
+    top: 50vh !important;
   }
 
   .crown-left {
-    left: 43vw !important;
-    top: 38vh !important;
+    left: 58vw !important;
+    top: 53vh !important;
   }
 
   .crown-right {
-    left: 69vw !important;
-    top: 38vh !important;
+    left: 76vw !important;
+    top: 53vh !important;
   }
 }
