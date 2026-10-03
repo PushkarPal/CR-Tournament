@@ -2124,8 +2124,12 @@ button,
     linear-gradient(180deg, rgba(20, 57, 96, .94), rgba(7, 27, 52, .97));
 }
 
-.bracket-wrapper .team-empty {
-  color: rgba(255,255,255,.52);
+.bracket-wrapper .team.team-empty {
+  color: rgba(205, 214, 224, .62) !important;
+  opacity: .58 !important;
+  filter: saturate(.55) brightness(.78) !important;
+  background:
+    linear-gradient(180deg, rgba(12, 32, 53, .92), rgba(5, 18, 33, .96)) !important;
 }
 
 .bracket-wrapper .team.winner {
