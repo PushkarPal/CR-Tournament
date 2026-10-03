@@ -3108,3 +3108,31 @@ button,
     height: 13vh !important;
   }
 }
+
+
+/* --- Crown visibility: animation must be allowed to reveal the assets -- */
+.champion-crown {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.champion-reveal.show .crown-middle,
+.champion-reveal.show .crown-left,
+.champion-reveal.show .crown-right {
+  animation-name: championSeparateCrownPopVisible !important;
+}
+
+@keyframes championSeparateCrownPopVisible {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 40px) scale(.72);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -3px) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
