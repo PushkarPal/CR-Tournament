@@ -2652,3 +2652,13 @@ button,
 }
 .champion-ribbon::before,
 .champion-ribbon::after { display: none !important; }
+
+
+/* Keep tournament reset accessible above the champion cinematic overlay. */
+.tournament-reset {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
