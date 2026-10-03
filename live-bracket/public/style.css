@@ -2098,5 +2098,6 @@ button,
 
 /* --- Tiny logo position adjustment ------------------------------------ */
 .brand-image {
-  transform: translateY(2px);
+  position: relative;
+  top: 2px;
 }
