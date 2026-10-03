@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const crown = document.createElement("img");
     crown.className = "crown-icon";
-    crown.src = "https://www.clipartmax.com/png/middle/132-1323602_decks-clash-royale-favicon-decks-clash-royale-logo-clash-royale-png.png";
+    crown.src = "crown.svg";
     crown.alt = "";
     crown.style.display = "none";
     
