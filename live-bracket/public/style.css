@@ -2933,3 +2933,53 @@ button,
   .crown-middle { margin-left: 0 !important; }
   .crown-right { margin-left: 28vw !important; }
 }
+
+
+/* --- Champion reveal: guaranteed full three-crown artwork ---------------- */
+.champion-crowns {
+  position: absolute !important;
+  left: 67vw !important;
+  top: 33vh !important;
+  width: 38vw !important;
+  height: auto !important;
+  margin: 0 !important;
+  z-index: 4 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, 40px) scale(.72);
+  transform-origin: center center;
+  filter: drop-shadow(0 12px 12px rgba(0,0,0,.5));
+}
+
+.champion-crowns img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.champion-reveal.show .champion-crowns {
+  animation: championCrownsPop .72s cubic-bezier(.22,1,.36,1) 1.45s both !important;
+}
+
+@keyframes championCrownsPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 40px) scale(.72);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -3px) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .champion-crowns {
+    left: 67vw !important;
+    top: 34vh !important;
+    width: 58vw !important;
+  }
+}
