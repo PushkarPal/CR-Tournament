@@ -191,9 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
     div.className = "team " + (name ? "" : "team-empty");
     div.id = `t-${side}-${round}-${index}-${slot}`;
     
-    const crown = document.createElement("span");
+    const crown = document.createElement("img");
     crown.className = "crown-icon";
-    crown.textContent = "👑";
+    crown.src = "https://www.clipartmax.com/png/middle/132-1323602_decks-clash-royale-favicon-decks-clash-royale-logo-clash-royale-png.png";
+    crown.alt = "";
     crown.style.display = "none";
     
     const nameSpan = document.createElement("span");
