@@ -127,7 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Every card uses the same width, sized from the longest player name.
     // The cap keeps the seven-column bracket inside the desktop viewport.
-    const teamWidth = Math.max(175, Math.min(220, measured + 64));
+    const viewportCap = Math.max(150, Math.floor((wrapper.clientWidth - 12) / 7));
+    const teamWidth = Math.min(Math.max(150, measured + 64), Math.min(220, viewportCap));
 
     // If an exceptionally long name reaches the width cap, reduce the text
     // rather than letting it clip or push the crown out of the card.
@@ -165,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     createMatch('C', 4, 0, null, null, true);
     
     registerConnections();
+    adaptTeamSizing();
     setTimeout(drawLines, 150);
     updateCurrentRound();
   }
