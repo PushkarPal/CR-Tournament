@@ -2217,3 +2217,74 @@ button,
   color: #9aa5b1 !important;
   opacity: .72 !important;
 }
+
+
+/* --- Final player-card alignment and sizing --------------------------- */
+.bracket-wrapper .team {
+  height: 58px !important;
+  min-height: 58px !important;
+  max-height: 58px !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  overflow: hidden !important;
+}
+
+.bracket-wrapper .team .player-name,
+.bracket-wrapper .team.winner .player-name {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  max-width: calc(100% - 24px) !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1 !important;
+  font-size: 21px !important;
+}
+
+.bracket-wrapper .team.winner .player-name {
+  max-width: calc(100% - 47px) !important;
+}
+
+.bracket-wrapper .team .crown-icon,
+.bracket-wrapper .team.winner .crown-icon {
+  position: static !important;
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper .team {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  .bracket-wrapper .team .crown-icon,
+  .bracket-wrapper .team.winner .crown-icon {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+  }
+
+  .bracket-wrapper .team.winner .player-name {
+    max-width: calc(100% - 43px) !important;
+  }
+}
+
+/* Waiting text keeps its existing size/font; only player names are enlarged. */
+.bracket-wrapper .team.team-empty .player-name {
+  font-size: 19px !important;
+  white-space: nowrap !important;
+}
