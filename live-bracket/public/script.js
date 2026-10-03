@@ -328,10 +328,43 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function shapeChampionName(name) {
+    const node = document.getElementById("champion-name");
+    if (!node) return;
+    node.innerHTML = "";
+
+    const chars = Array.from(String(name || ""));
+    const width = Math.min(680, Math.max(260, window.innerWidth * 0.58));
+    const center = (chars.length - 1) / 2;
+
+    chars.forEach((char, i) => {
+      const span = document.createElement("span");
+      span.textContent = char === " " ? "\u00a0" : char;
+      const x = (i - center) * Math.min(48, width / Math.max(chars.length, 1));
+      const t = center ? (i - center) / center : 0;
+      const y = -18 * (1 - t * t);
+      const angle = center ? (Math.atan2(-36 * t / center, 2) * 180 / Math.PI) : 0;
+      span.style.transform = `translate(calc(-50% + ${x}px), ${y}px) rotate(${angle}deg)`;
+      node.appendChild(span);
+    });
+  }
+
+  function playChampionVictory() {
+    const audio = document.getElementById("champion-victory-audio");
+    if (audio) {
+      audio.currentTime = 0;
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+  }
+
   function celebrateChampion(name) {
     const splash = document.getElementById("champion-splash");
-    document.getElementById("champion-name").textContent = name;
+    shapeChampionName(name);
+    splash.classList.remove("show");
+    void splash.offsetWidth;
     splash.classList.add("show");
+    playChampionVictory();
     updateCurrentRound();
   }
 
