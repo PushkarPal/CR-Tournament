@@ -2736,3 +2736,85 @@ button,
   width: 48vw !important;
   height: 80px !important;
 }
+
+
+/* --- Champion reveal reference composition fix -------------------------
+   Explicit viewport coordinates prevent the supplied artwork from
+   collapsing back to the centered fallback layout.
+--------------------------------------------------------------------------- */
+.champion-king {
+  left: 20vw !important;
+  top: 2vh !important;
+  margin-left: 0 !important;
+  width: 34vw !important;
+  height: 96vh !important;
+}
+
+.champion-king img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+.champion-winner {
+  left: 67vw !important;
+  top: 11vh !important;
+  margin-left: 0 !important;
+  width: 46vw !important;
+  height: auto !important;
+}
+
+.champion-winner img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.champion-crown {
+  width: 15.5vw !important;
+  height: 17vh !important;
+  background-size: 86vw auto !important;
+}
+
+.crown-left {
+  left: 43vw !important;
+  top: 34vh !important;
+  margin-left: 0 !important;
+  background-position: 0 -1vh !important;
+}
+
+.crown-middle {
+  left: 56vw !important;
+  top: 31vh !important;
+  margin-left: 0 !important;
+  background-position: -28.7vw -1vh !important;
+}
+
+.crown-right {
+  left: 70vw !important;
+  top: 35vh !important;
+  margin-left: 0 !important;
+  background-position: -57.3vw -1vh !important;
+}
+
+.champion-ribbon {
+  left: 67vw !important;
+  top: 61vh !important;
+  margin-left: 0 !important;
+  width: 46vw !important;
+  height: auto !important;
+}
+
+.champion-ribbon img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.champion-ribbon-name {
+  left: 67vw !important;
+  top: 69vh !important;
+  margin-left: 0 !important;
+  width: 38vw !important;
+}
