@@ -406,6 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bracketScreen.classList.contains("hidden") || resizeFrame) return;
     resizeFrame = requestAnimationFrame(() => {
       resizeFrame = 0;
+      adaptTeamSizing();
       drawLines();
     });
   });
