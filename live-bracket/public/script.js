@@ -125,8 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.font = "19px 'You Blockhead', sans-serif";
     const longestText = String(longestName || "");
     const measured = Math.ceil(
-      ctx.measureText(longestText).width + longestText.length * 0.9
-    ) + 8;
+      ctx.measureText(longestText).width + longestText.length * 1
+    ) + 12;
 
     // Every card uses the same width, sized from the longest player name.
     // The cap keeps the seven-column bracket inside the desktop viewport.
@@ -139,10 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // rather than letting it clip or push the crown out of the card.
     // Reserve room for the crown, card padding, and a small safety margin.
     // This keeps even the longest name fully visible inside the shared card.
-    const usableTextWidth = Math.max(90, teamWidth - 78);
+    const usableTextWidth = Math.max(96, teamWidth - 48);
     const fontSize = Math.max(
-      16,
-      Math.min(19, 19 * usableTextWidth / Math.max(measured - 8, 1))
+      14,
+      Math.min(19, 19 * usableTextWidth / Math.max(measured - 12, 1))
     );
     const crownSize = Math.max(29, Math.min(34, fontSize * 1.72));
 
@@ -174,6 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
     registerConnections();
     adaptTeamSizing();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => adaptTeamSizing());
+    }
     setTimeout(drawLines, 150);
     updateCurrentRound();
   }
