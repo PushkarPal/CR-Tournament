@@ -139,9 +139,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // rather than letting it clip or push the crown out of the card.
     // Reserve room for the crown, card padding, and a small safety margin.
     // This keeps even the longest name fully visible inside the shared card.
-    const usableTextWidth = Math.max(96, teamWidth - 48);
+    // Winners need extra horizontal room for the crown + the gap beside it.
+    // Size the font against the actual winner text area, not the full card.
+    const usableTextWidth = Math.max(72, teamWidth - 66);
     const fontSize = Math.max(
-      14,
+      12,
       Math.min(19, 19 * usableTextWidth / Math.max(measured - 12, 1))
     );
     const crownSize = Math.max(29, Math.min(34, fontSize * 1.72));
