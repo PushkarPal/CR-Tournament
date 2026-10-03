@@ -3136,3 +3136,102 @@ button,
     transform: translate(-50%, 0) scale(1);
   }
 }
+
+
+/* --- Champion crown final layout/sequence ----------------------------- */
+.champion-crown {
+  opacity: 0 !important;
+  visibility: visible !important;
+  background: none !important;
+  background-image: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  width: 11vw !important;
+  height: 10vh !important;
+  margin-left: 0 !important;
+  overflow: visible !important;
+  transform-origin: center center !important;
+}
+
+/* Remove the previous forced opacity rule so CSS animation can control it. */
+.champion-crown {
+  opacity: 0;
+}
+
+.champion-crown img {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.crown-middle {
+  left: 56vw !important;
+  top: 34vh !important;
+  width: 11vw !important;
+  height: 10vh !important;
+  transform: translate(-50%, 35px) scale(.72) !important;
+}
+
+.crown-left {
+  left: 46vw !important;
+  top: 37vh !important;
+  width: 11vw !important;
+  height: 10vh !important;
+  transform: translate(-50%, 35px) scale(.72) !important;
+}
+
+.crown-right {
+  left: 66vw !important;
+  top: 37vh !important;
+  width: 11vw !important;
+  height: 10vh !important;
+  transform: translate(-50%, 35px) scale(.72) !important;
+}
+
+.champion-reveal.show .crown-middle {
+  animation: championSeparateCrownPopFinal .55s cubic-bezier(.22,1,.36,1) 1.45s both !important;
+}
+
+.champion-reveal.show .crown-left {
+  animation: championSeparateCrownPopFinal .55s cubic-bezier(.22,1,.36,1) 1.72s both !important;
+}
+
+.champion-reveal.show .crown-right {
+  animation: championSeparateCrownPopFinal .55s cubic-bezier(.22,1,.36,1) 1.99s both !important;
+}
+
+@keyframes championSeparateCrownPopFinal {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 35px) scale(.72);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, -3px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .champion-crown {
+    width: 18vw !important;
+    height: 9vh !important;
+  }
+
+  .crown-middle {
+    left: 56vw !important;
+    top: 35vh !important;
+  }
+
+  .crown-left {
+    left: 43vw !important;
+    top: 38vh !important;
+  }
+
+  .crown-right {
+    left: 69vw !important;
+    top: 38vh !important;
+  }
+}
