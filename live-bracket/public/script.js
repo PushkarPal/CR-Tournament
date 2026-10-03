@@ -354,8 +354,38 @@ document.addEventListener("DOMContentLoaded", () => {
     if (audio) {
       audio.currentTime = 0;
       const p = audio.play();
-      if (p && p.catch) p.catch(() => {});
+      if (p) {
+        p.catch(() => playVictoryFallback());
+        return;
+      }
     }
+    playVictoryFallback();
+  }
+
+  function playVictoryFallback() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      const notes = [
+        [523.25, 0.00, .22], [659.25, .16, .22], [783.99, .32, .28],
+        [1046.5, .54, .42], [783.99, .72, .24], [1046.5, .90, .55]
+      ];
+      notes.forEach(([freq, start, duration]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + start);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + start + .025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now + start);
+        osc.stop(now + start + duration + .03);
+      });
+      setTimeout(() => ctx.close(), 1800);
+    } catch (_) {}
   }
 
   function celebrateChampion(name) {
