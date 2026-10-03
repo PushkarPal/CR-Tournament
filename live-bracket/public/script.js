@@ -194,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const crown = document.createElement("span");
     crown.className = "crown-icon";
     crown.textContent = "👑";
+    crown.style.display = "none";
     
     const nameSpan = document.createElement("span");
     nameSpan.className = "player-name";
@@ -222,8 +223,16 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const wTeam = document.getElementById(`t-${side}-${round}-${index}-${winningSlotIndex}`);
     const lTeam = document.getElementById(`t-${side}-${round}-${index}-${1 - winningSlotIndex}`);
-    if(wTeam) wTeam.classList.add("winner");
-    if(lTeam) lTeam.classList.add("loser");
+    if(wTeam) {
+      wTeam.classList.add("winner");
+      const winnerCrown = wTeam.querySelector(".crown-icon");
+      if (winnerCrown) winnerCrown.style.display = "block";
+    }
+    if(lTeam) {
+      lTeam.classList.add("loser");
+      const loserCrown = lTeam.querySelector(".crown-icon");
+      if (loserCrown) loserCrown.style.display = "none";
+    }
 
     if (round === 4) {
       celebrateChampion(winnerName);
