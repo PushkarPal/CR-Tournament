@@ -2857,3 +2857,25 @@ button,
   text-shadow: 0 4px 0 rgba(70,28,0,.9), 0 7px 12px rgba(0,0,0,.45) !important;
   transform-origin: 50% 50% !important;
 }
+
+
+/* --- Champion crown artwork: show the complete crowns ------------------ */
+.champion-crown {
+  width: 16vw !important;
+  height: 19vh !important;
+  background-size: 57.62vw 17.28vh !important;
+  background-repeat: no-repeat !important;
+  background-position-y: -14.5vh !important;
+}
+
+.crown-left {
+  background-position-x: -13.6vw !important;
+}
+
+.crown-middle {
+  background-position-x: -22.3vw !important;
+}
+
+.crown-right {
+  background-position-x: -31vw !important;
+}
