@@ -2096,9 +2096,9 @@ button,
 }
 
 
-/* --- Tiny logo position adjustment ------------------------------------ */
+/* --- Final logo position adjustment ---------------------------------- */
 .brand-image {
-  position: relative;
-  top: 0;
-  margin-top: 8px;
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 30px !important;
 }
