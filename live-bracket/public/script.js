@@ -110,6 +110,39 @@ document.addEventListener("DOMContentLoaded", () => {
     emit('start_tournament', newPlayers);
   });
 
+  function adaptTeamSizing() {
+    const wrapper = document.getElementById("bracket-wrapper");
+    if (!wrapper || !players.length) return;
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const longestName = players.reduce((longest, name) =>
+      String(name || "").length > String(longest || "").length ? name : longest, ""
+    );
+
+    ctx.font = "900 19px 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif";
+    const measured = Math.ceil(ctx.measureText(String(longestName || "")).width) + 8;
+
+    // Every card uses the same width, sized from the longest player name.
+    // The cap keeps the seven-column bracket inside the desktop viewport.
+    const teamWidth = Math.max(175, Math.min(220, measured + 64));
+
+    // If an exceptionally long name reaches the width cap, reduce the text
+    // rather than letting it clip or push the crown out of the card.
+    const usableTextWidth = teamWidth - 64;
+    const fontSize = Math.max(
+      15.5,
+      Math.min(19, 19 * usableTextWidth / Math.max(measured - 8, 1))
+    );
+    const crownSize = Math.max(30, Math.min(34, fontSize >= 18 ? 34 : fontSize * 1.72));
+
+    wrapper.style.setProperty("--team-width", teamWidth + "px");
+    wrapper.style.setProperty("--name-font-size", fontSize.toFixed(2) + "px");
+    wrapper.style.setProperty("--crown-size", crownSize.toFixed(2) + "px");
+  }
+
   function buildBracket() {
     ['L-1','L-2','L-3','C-4','R-3','R-2','R-1'].forEach(id => document.getElementById(`col-${id}`).innerHTML = '');
     connectionPaths.length = 0;
