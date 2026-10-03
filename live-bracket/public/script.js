@@ -123,7 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     ctx.font = "900 19px 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif";
-    const measured = Math.ceil(ctx.measureText(String(longestName || "")).width) + 8;
+    const longestText = String(longestName || "");
+    const measured = Math.ceil(
+      ctx.measureText(longestText).width + longestText.length * 0.9
+    ) + 8;
 
     // Every card uses the same width, sized from the longest player name.
     // The cap keeps the seven-column bracket inside the desktop viewport.
