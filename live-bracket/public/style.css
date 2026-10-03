@@ -2662,3 +2662,77 @@ button,
   z-index: 1000 !important;
   pointer-events: auto !important;
 }
+
+
+/* --- Champion reveal: reference-layout positioning only -----------------
+   Matches the supplied champion-reveal design composition.
+   No animation, audio, backdrop, bracket, or site-wide styling changes.
+--------------------------------------------------------------------------- */
+.champion-king {
+  top: 2.78vh !important;
+  width: 39.45vw !important;
+  height: 92.80vh !important;
+  margin-left: -29.01vw !important;
+}
+
+.champion-king img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+}
+
+.champion-winner {
+  top: 11.18vh !important;
+  width: 55.96vw !important;
+  height: 18.75vh !important;
+  margin-left: 17.34vw !important;
+}
+
+.champion-winner img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+}
+
+.champion-crown {
+  width: 19.58vw !important;
+  height: 23.56vh !important;
+  background-size: 57.62vw 26.33vh !important;
+}
+
+.crown-left {
+  top: 33.31vh !important;
+  margin-left: 0.42vw !important;
+  background-position: 0 -3.90vh !important;
+}
+
+.crown-middle {
+  top: 33.31vh !important;
+  margin-left: 19.73vw !important;
+  background-position: -19.22vw -0.42vh !important;
+}
+
+.crown-right {
+  top: 39.53vh !important;
+  margin-left: 39.77vw !important;
+  background-position: -34.59vw -3.90vh !important;
+}
+
+.champion-ribbon {
+  top: 60.62vh !important;
+  width: 57.62vw !important;
+  height: 21.46vh !important;
+  margin-left: 19.44vw !important;
+}
+
+.champion-ribbon img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+}
+
+.champion-ribbon-name {
+  top: 67.25vh !important;
+  width: 48vw !important;
+  height: 80px !important;
+}
