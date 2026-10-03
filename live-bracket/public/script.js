@@ -195,7 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
     crown.className = "crown-icon";
     crown.src = "crown.svg";
     crown.alt = "";
-    crown.style.display = "none";
+    // Keep the badge in the flex layout from the start; CSS collapses it
+    // until the match has a winner, allowing a smooth reveal without
+    // disturbing the centered name before selection.
     
     const nameSpan = document.createElement("span");
     nameSpan.className = "player-name";
