@@ -2818,3 +2818,42 @@ button,
   margin-left: 0 !important;
   width: 38vw !important;
 }
+
+
+/* --- Champion crown crops + ribbon-name readability --------------------
+   Fixes only the crown crop positions and the champion-name arc.
+--------------------------------------------------------------------------- */
+.champion-crown {
+  width: 15.5vw !important;
+  height: 17vh !important;
+  background-size: 57.62vw auto !important;
+  background-repeat: no-repeat !important;
+}
+
+.crown-left {
+  background-position: -17.7vw 0 !important;
+}
+
+.crown-middle {
+  background-position: -26vw 0 !important;
+}
+
+.crown-right {
+  background-position: -34.6vw 0 !important;
+}
+
+.champion-ribbon-name {
+  top: 68vh !important;
+  width: 38vw !important;
+  height: 80px !important;
+  overflow: visible !important;
+}
+
+.champion-ribbon-name span {
+  top: 8px !important;
+  font-size: clamp(28px, 3.1vw, 54px) !important;
+  line-height: 1 !important;
+  color: #fff7d2 !important;
+  text-shadow: 0 4px 0 rgba(70,28,0,.9), 0 7px 12px rgba(0,0,0,.45) !important;
+  transform-origin: 50% 50% !important;
+}
