@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
       String(name || "").length > String(longest || "").length ? name : longest, ""
     );
 
-    ctx.font = "900 19px 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif";
+    ctx.font = "19px 'You Blockhead', sans-serif";
     const longestText = String(longestName || "");
     const measured = Math.ceil(
       ctx.measureText(longestText).width + longestText.length * 0.9
