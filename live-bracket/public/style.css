@@ -2005,3 +2005,44 @@ button,
     max-width: calc(100% - 32px) !important;
   }
 }
+
+/* --- Final crown animation polish ------------------------------------- */
+.team .crown-icon {
+  transition:
+    width .42s cubic-bezier(.22, 1, .36, 1),
+    height .42s cubic-bezier(.22, 1, .36, 1),
+    flex-basis .42s cubic-bezier(.22, 1, .36, 1),
+    opacity .30s ease-out,
+    transform .42s cubic-bezier(.22, 1, .36, 1);
+}
+
+.team.winner .crown-icon {
+  flex-basis: 34px;
+  width: 34px !important;
+  height: 34px !important;
+  max-width: 34px;
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.team.winner .player-name {
+  max-width: calc(100% - 41px) !important;
+  transition: max-width .42s cubic-bezier(.22, 1, .36, 1);
+}
+
+.team.pop-in {
+  animation: smoothSlotPop .42s cubic-bezier(.22, 1, .36, 1) both !important;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .team.winner .crown-icon {
+    flex-basis: 31px;
+    width: 31px !important;
+    height: 31px !important;
+    max-width: 31px;
+  }
+
+  .team.winner .player-name {
+    max-width: calc(100% - 38px) !important;
+  }
+}
