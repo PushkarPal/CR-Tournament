@@ -2624,3 +2624,31 @@ button,
   white-space: pre !important;
   transform-origin: 50% 50%;
 }
+
+
+/* Supplied champion artwork */
+.champion-winner {
+  width: min(900px, 72vw) !important;
+  height: auto !important;
+}
+.champion-winner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.champion-ribbon {
+  width: min(900px, 78vw) !important;
+  height: auto !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.champion-ribbon img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.champion-ribbon::before,
+.champion-ribbon::after { display: none !important; }
