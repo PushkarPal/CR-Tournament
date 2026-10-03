@@ -348,9 +348,13 @@ document.addEventListener("DOMContentLoaded", () => {
     svgLayer.appendChild(activePath);
     animatedLines.add(connectionId);
     
-    setTimeout(() => {
-      if(callback) callback();
-    }, 600);
+    // Let the browser paint the active path first, then advance on the next
+    // frame instead of forcing a long timer-based animation pause.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (callback) callback();
+      });
+    });
   }
 
   function drawActiveLineStatic(d, connectionId) {
@@ -360,8 +364,13 @@ document.addEventListener("DOMContentLoaded", () => {
     svgLayer.appendChild(activePath);
   }
 
+  let resizeFrame = 0;
   window.addEventListener('resize', () => {
-    if(!bracketScreen.classList.contains("hidden")) drawLines();
+    if (bracketScreen.classList.contains("hidden") || resizeFrame) return;
+    resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = 0;
+      drawLines();
+    });
   });
 
   // Realtime server handlers are used when the Node server is running.
