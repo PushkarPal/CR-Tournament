@@ -1717,3 +1717,29 @@ button,
 .bracket-wrapper {
   transform: translateY(-12px);
 }
+
+
+/* --- Resolved matchup: fade the eliminated player ---------------------- */
+.team.loser {
+  opacity: .42 !important;
+  filter: grayscale(100%) !important;
+  border-color: #5b626b !important;
+  background:
+    linear-gradient(180deg, rgba(75,82,91,.55), rgba(20,25,31,.82)),
+    linear-gradient(180deg, #3d4650 0%, #252c34 100%) !important;
+  color: #b6bcc2 !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.08),
+    inset 0 -4px 7px rgba(0,0,0,.5),
+    0 3px 0 #080b0e,
+    0 5px 9px rgba(0,0,0,.5) !important;
+}
+
+.team.loser .player-name {
+  color: #b6bcc2 !important;
+  opacity: 1 !important;
+}
+
+.team.loser .crown-icon {
+  opacity: .18 !important;
+}
