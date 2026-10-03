@@ -3021,7 +3021,7 @@ button,
 .champion-crown {
   position: absolute !important;
   z-index: 20 !important;
-  opacity: 0 !important;
+  opacity: 0;
   background: none !important;
   background-image: none !important;
   overflow: visible !important;
@@ -3112,7 +3112,7 @@ button,
 
 /* --- Crown visibility: animation must be allowed to reveal the assets -- */
 .champion-crown {
-  opacity: 1 !important;
+  opacity: 1;
   visibility: visible !important;
 }
 
@@ -3140,7 +3140,7 @@ button,
 
 /* --- Champion crown final layout/sequence ----------------------------- */
 .champion-crown {
-  opacity: 0 !important;
+  opacity: 0;
   visibility: visible !important;
   background: none !important;
   background-image: none !important;
