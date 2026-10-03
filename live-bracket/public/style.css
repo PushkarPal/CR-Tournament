@@ -2186,3 +2186,10 @@ button,
   font-weight: normal !important;
   font-stretch: normal !important;
 }
+
+
+/* --- Restore previous waiting-text font only -------------------------- */
+.bracket-wrapper .team.team-empty .player-name {
+  font-family: 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif !important;
+  font-weight: 900 !important;
+}
