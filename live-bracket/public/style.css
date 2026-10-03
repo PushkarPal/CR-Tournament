@@ -1655,3 +1655,46 @@ button,
   font-stretch: expanded;
   text-align: center;
 }
+
+
+/* --- Enlarge the bracket tree vertically while keeping it in one frame --- */
+.bracket-wrapper {
+  height: clamp(500px, calc(100vh - 165px), 680px);
+}
+
+.team {
+  min-height: 58px;
+  padding: 10px 12px;
+}
+
+.match {
+  gap: 4px;
+}
+
+.col {
+  row-gap: 40px;
+}
+
+.col-center {
+  padding-top: 26px;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper {
+    height: calc(100vh - 150px);
+    min-height: 440px;
+  }
+
+  .team {
+    min-height: 50px;
+    padding: 8px 10px;
+  }
+
+  .col {
+    row-gap: 34px;
+  }
+
+  .col-center {
+    padding-top: 20px;
+  }
+}
