@@ -2103,3 +2103,33 @@ button,
   margin-top: 0 !important;
   transform: translateY(30px) !important;
 }
+
+/* --- Card/background separation --------------------------------------- */
+/* Keep the existing background intact; give player cards a cleaner visual
+   barrier so the character artwork does not compete with the names. */
+.bracket-wrapper .match {
+  background:
+    linear-gradient(180deg, rgba(7, 28, 54, .97), rgba(3, 16, 33, .985));
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.16),
+    inset 0 -5px 0 rgba(0,0,0,.34),
+    0 0 0 2px rgba(7,21,38,.9),
+    0 8px 18px rgba(0,0,0,.78);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.bracket-wrapper .team {
+  background:
+    linear-gradient(180deg, rgba(20, 57, 96, .94), rgba(7, 27, 52, .97));
+}
+
+.bracket-wrapper .team-empty {
+  color: rgba(255,255,255,.52);
+}
+
+.bracket-wrapper .team.winner {
+  background:
+    linear-gradient(180deg, rgba(101, 77, 15, .96), rgba(47, 34, 7, .98));
+}
+
