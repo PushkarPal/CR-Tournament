@@ -2983,3 +2983,31 @@ button,
     width: 58vw !important;
   }
 }
+
+
+/* --- Final crown visibility fix --------------------------------------- */
+.champion-crowns {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 20 !important;
+  transform: translate(-50%, 0) scale(1) !important;
+}
+
+.champion-reveal.show .champion-crowns {
+  animation: championCrownsVisiblePop .72s cubic-bezier(.22,1,.36,1) 1.45s both !important;
+}
+
+@keyframes championCrownsVisiblePop {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 40px) scale(.72);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -3px) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
