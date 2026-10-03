@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      nameNode.style.fontSize = size.toFixed(2) + "px";
+      nameNode.style.setProperty("font-size", size.toFixed(2) + "px", "important");
     });
   }
 
