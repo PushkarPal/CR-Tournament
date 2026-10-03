@@ -97,7 +97,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("btn-reset").addEventListener("click", () => {
     const confirmed = confirm("Reset the tournament and return to player setup? This will clear the current match progress.");
-    if (confirmed) emit("reset_tournament");
+    if (!confirmed) return;
+
+    const audio = document.getElementById("champion-victory-audio");
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    const splash = document.getElementById("champion-splash");
+    if (splash) {
+      splash.classList.remove("show");
+      splash.setAttribute("aria-hidden", "true");
+    }
+
+    emit("reset_tournament");
   });
 
   document.getElementById("btn-start").addEventListener("click", () => {
