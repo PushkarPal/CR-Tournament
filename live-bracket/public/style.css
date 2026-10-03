@@ -2166,3 +2166,23 @@ button,
 .bracket-wrapper .team.winner .player-name {
   color: #fff1a6 !important;
 }
+
+
+/* --- You Blockhead player-name font ----------------------------------- */
+@font-face {
+  font-family: 'You Blockhead';
+  src: url('./fonts/YouBlockhead.woff2') format('woff2'),
+       url('./fonts/YouBlockhead.woff') format('woff'),
+       url('./fonts/YouBlockhead.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.bracket-wrapper .team .player-name,
+.bracket-wrapper .team:not(.team-empty) .player-name,
+.bracket-wrapper .team.team-empty .player-name {
+  font-family: 'You Blockhead', sans-serif !important;
+  font-weight: normal !important;
+  font-stretch: normal !important;
+}
