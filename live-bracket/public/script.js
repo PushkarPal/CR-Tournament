@@ -132,12 +132,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // If an exceptionally long name reaches the width cap, reduce the text
     // rather than letting it clip or push the crown out of the card.
-    const usableTextWidth = teamWidth - 64;
+    // Reserve room for the crown, card padding, and a small safety margin.
+    // This keeps even the longest name fully visible inside the shared card.
+    const usableTextWidth = Math.max(90, teamWidth - 78);
     const fontSize = Math.max(
-      15.5,
+      16,
       Math.min(19, 19 * usableTextWidth / Math.max(measured - 8, 1))
     );
-    const crownSize = Math.max(30, Math.min(34, fontSize >= 18 ? 34 : fontSize * 1.72));
+    const crownSize = Math.max(29, Math.min(34, fontSize * 1.72));
 
     wrapper.style.setProperty("--team-width", teamWidth + "px");
     wrapper.style.setProperty("--name-font-size", fontSize.toFixed(2) + "px");
