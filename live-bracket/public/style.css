@@ -1803,3 +1803,84 @@ button,
     left: 6px;
   }
 }
+
+
+/* --- Smooth animation/performance pass --------------------------------- */
+/* Keep motion on compositor-friendly properties and avoid expensive
+   "transition: all" / filter work during interaction. */
+.team,
+.match,
+button,
+.tournament-reset,
+.champion-reveal,
+.team .crown-icon,
+.team .player-name {
+  transition-property: transform, opacity;
+  transition-duration: .18s;
+  transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
+.match.ready .team:hover {
+  filter: none !important;
+  transform: translateY(-1px);
+}
+
+.team .crown-icon {
+  will-change: transform, opacity;
+}
+
+.team.pop-in {
+  animation: smoothSlotPop .32s cubic-bezier(.22, 1, .36, 1) both !important;
+}
+
+@keyframes smoothSlotPop {
+  0% {
+    transform: translateY(5px) scale(.96);
+    opacity: .35;
+  }
+  65% {
+    transform: translateY(-1px) scale(1.015);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* SVG filters are costly when many paths/cards are rendered together.
+   The gold path stays prominent using stroke + opacity only. */
+.line-active {
+  filter: none !important;
+  opacity: 1;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-dasharray: none;
+  animation: none !important;
+}
+
+.line {
+  filter: none !important;
+  animation: none !important;
+}
+
+/* Keep the champion reveal smooth without animating layout-heavy properties. */
+.champion-reveal {
+  transition-property: transform, opacity;
+}
+
+.rays {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
