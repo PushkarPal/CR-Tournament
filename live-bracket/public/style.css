@@ -1591,3 +1591,52 @@ button,
   -webkit-text-stroke: 0 transparent !important;
   filter: none !important;
 }
+
+
+/* --- Temporary maximum player-name clarity ----------------------------- */
+/* Hide round banners for a clean bracket view. */
+.col::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Participant names: no text effects, no inherited visual filters,
+   maximum contrast and prominence. */
+.team .player-name,
+.team:not(.team-empty) .player-name,
+.team.team-empty .player-name {
+  display: block;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1.12 !important;
+  letter-spacing: .15px !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  transform: none !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Do not let the card-level visual treatment alter participant text. */
+.team {
+  filter: none !important;
+}
+
+.team:not(.team-empty) {
+  opacity: 1 !important;
+}
+
+.team:not(.team-empty) .player-name {
+  position: relative;
+  z-index: 10;
+}
+
+/* Keep the small crown unobtrusive so the actual name remains dominant. */
+.team .crown-icon {
+  filter: none !important;
+  text-shadow: none !important;
+}
