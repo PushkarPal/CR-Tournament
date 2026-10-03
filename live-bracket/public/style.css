@@ -2364,3 +2364,245 @@ button,
     max-width: calc(100% - 43px) !important;
   }
 }
+
+
+/* --- Champion reveal: five-second cinematic overlay ------------------ */
+.champion-reveal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  transform: none !important;
+  pointer-events: none !important;
+  z-index: 500 !important;
+}
+
+.champion-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 8, 18, .34);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  opacity: 0;
+}
+
+.champion-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.champion-king,
+.champion-winner,
+.champion-crown,
+.champion-ribbon,
+.champion-ribbon-name {
+  position: absolute;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.champion-king {
+  z-index: 2;
+  top: 3vh;
+  width: min(430px, 31vw);
+  height: min(520px, 53vh);
+  transform: translateX(-50%) translateY(55px) scale(.72);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  filter: drop-shadow(0 22px 18px rgba(0,0,0,.55));
+}
+
+.champion-king img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.champion-winner {
+  z-index: 5;
+  top: 37vh;
+  transform: translate(-50%, 35px) scale(.72);
+  font-family: 'You Blockhead', sans-serif;
+  font-size: clamp(54px, 7vw, 104px);
+  line-height: .9;
+  white-space: nowrap;
+  color: #fff;
+  letter-spacing: 1px;
+  -webkit-text-stroke: clamp(4px, .45vw, 8px) #164bd4;
+  text-shadow:
+    0 7px 0 #062ca1,
+    0 10px 18px rgba(0,0,0,.55);
+}
+
+/* Three crops of the existing three-crown SVG, animated independently. */
+.champion-crown {
+  z-index: 4;
+  width: min(270px, 21vw);
+  height: min(190px, 18vh);
+  background-image: url('crowns.svg');
+  background-repeat: no-repeat;
+  background-size: 900px 360px;
+  filter: drop-shadow(0 12px 12px rgba(0,0,0,.5));
+  transform: translateX(-50%) scale(.5);
+}
+
+.crown-middle {
+  top: 51vh;
+  background-position: -300px -15px;
+}
+.crown-left {
+  top: 55vh;
+  margin-left: -22vw;
+  background-position: 0 -90px;
+}
+.crown-right {
+  top: 55vh;
+  margin-left: 22vw;
+  background-position: -615px -90px;
+}
+
+.champion-ribbon {
+  z-index: 3;
+  top: 70vh;
+  width: min(850px, 72vw);
+  height: min(245px, 25vh);
+  transform: translate(-50%, 45px) scale(.72);
+  background:
+    linear-gradient(180deg, rgba(54,206,255,.96), rgba(0,101,232,.98) 58%, rgba(0,57,157,.98));
+  border: clamp(3px, .35vw, 6px) solid #0874ff;
+  border-radius: 48% 48% 42% 42% / 38% 38% 55% 55%;
+  box-shadow:
+    inset 0 5px 0 rgba(116,238,255,.8),
+    inset 0 -14px 0 rgba(0,45,130,.8),
+    0 16px 22px rgba(0,0,0,.55);
+}
+
+.champion-ribbon::before,
+.champion-ribbon::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  width: 150px;
+  height: 95px;
+  background: linear-gradient(180deg, #118eff, #0054cc);
+  border: 4px solid #0061dc;
+  z-index: -1;
+}
+.champion-ribbon::before {
+  left: -82px;
+  transform: skewX(20deg) rotate(8deg);
+  border-radius: 0 0 18px 28px;
+}
+.champion-ribbon::after {
+  right: -82px;
+  transform: skewX(-20deg) rotate(-8deg);
+  border-radius: 0 0 28px 18px;
+}
+
+.champion-ribbon-name {
+  z-index: 6;
+  top: 77vh;
+  width: min(680px, 58vw);
+  min-height: 75px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff7d2;
+  font-family: 'You Blockhead', sans-serif;
+  font-size: clamp(30px, 3.2vw, 54px);
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  text-shadow: 0 4px 0 rgba(70,28,0,.9), 0 7px 12px rgba(0,0,0,.45);
+}
+
+.champion-reveal.show {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
+.champion-reveal.show .champion-backdrop {
+  animation: championBackdropIn .65s cubic-bezier(.22,1,.36,1) both;
+}
+.champion-reveal.show .champion-king {
+  animation: championKingPop .9s cubic-bezier(.22,1,.36,1) .12s both;
+}
+.champion-reveal.show .champion-winner {
+  animation: championWinnerPop .72s cubic-bezier(.22,1,.36,1) .82s both;
+}
+.champion-reveal.show .crown-middle {
+  animation: championCrownPop .55s cubic-bezier(.22,1,.36,1) 1.45s both;
+}
+.champion-reveal.show .crown-left {
+  animation: championCrownPop .55s cubic-bezier(.22,1,.36,1) 1.72s both;
+}
+.champion-reveal.show .crown-right {
+  animation: championCrownPop .55s cubic-bezier(.22,1,.36,1) 1.99s both;
+}
+.champion-reveal.show .champion-ribbon {
+  animation: championRibbonPop .7s cubic-bezier(.22,1,.36,1) 2.3s both;
+}
+.champion-reveal.show .champion-ribbon-name {
+  animation: championNamePop .7s cubic-bezier(.22,1,.36,1) 2.68s both;
+}
+
+@keyframes championBackdropIn {
+  from { opacity: 0; backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+}
+@keyframes championKingPop {
+  0% { opacity: 0; transform: translateX(-50%) translateY(55px) scale(.72); }
+  65% { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1.035); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes championWinnerPop {
+  0% { opacity: 0; transform: translate(-50%,35px) scale(.72); }
+  70% { opacity: 1; transform: translate(-50%,-3px) scale(1.04); }
+  100% { opacity: 1; transform: translate(-50%,0) scale(1); }
+}
+@keyframes championCrownPop {
+  0% { opacity: 0; transform: translateX(-50%) scale(.5); }
+  65% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes championRibbonPop {
+  0% { opacity: 0; transform: translate(-50%,45px) scale(.72); }
+  68% { opacity: 1; transform: translate(-50%,-3px) scale(1.035); }
+  100% { opacity: 1; transform: translate(-50%,0) scale(1); }
+}
+@keyframes championNamePop {
+  0% { opacity: 0; transform: translateX(-50%) translateY(12px) scale(.94); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@media (max-width: 900px) {
+  .champion-king { width: min(350px, 58vw); height: min(430px, 48vh); top: 7vh; }
+  .champion-winner { top: 43vh; font-size: clamp(42px, 12vw, 78px); }
+  .champion-crown { width: 190px; height: 145px; background-size: 640px 256px; }
+  .crown-middle { background-position: -214px -10px; }
+  .crown-left { margin-left: -28vw; background-position: 0 -64px; }
+  .crown-right { margin-left: 28vw; background-position: -437px -64px; }
+  .champion-ribbon { top: 72vh; width: 78vw; height: 19vh; }
+  .champion-ribbon-name { top: 78vh; width: 65vw; font-size: clamp(24px, 6vw, 40px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .champion-reveal.show * { animation-duration: .01ms !important; animation-delay: 0ms !important; }
+}
