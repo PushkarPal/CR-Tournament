@@ -2105,18 +2105,13 @@ button,
 }
 
 /* --- Card/background separation --------------------------------------- */
-/* Keep the existing background intact; give player cards a cleaner visual
-   barrier so the character artwork does not compete with the names. */
+/* The gap between player boards should reveal the real page background.
+   Keep the separation on the boards themselves, not on the match wrapper. */
 .bracket-wrapper .match {
-  background:
-    linear-gradient(180deg, rgba(7, 28, 54, .97), rgba(3, 16, 33, .985));
-  box-shadow:
-    inset 0 2px 0 rgba(255,255,255,.16),
-    inset 0 -5px 0 rgba(0,0,0,.34),
-    0 0 0 2px rgba(7,21,38,.9),
-    0 8px 18px rgba(0,0,0,.78);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .bracket-wrapper .team {
