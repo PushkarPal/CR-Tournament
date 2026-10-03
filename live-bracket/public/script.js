@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamWidth = Math.min(212, viewportCap);
 
     wrapper.style.setProperty("--team-width", teamWidth + "px");
-    wrapper.style.setProperty("--name-font-size", "21px");
+    wrapper.style.setProperty("--name-font-size", "19px");
     wrapper.style.setProperty("--crown-size", "40px");
 
     const nameNodes = wrapper.querySelectorAll(".team .player-name");
@@ -140,13 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const crownSpace = isWinner ? 40 + 7 : 0;
       const available = Math.max(72, teamWidth - 24 - crownSpace);
 
-      let size = 20;
+      let size = 19;
       ctx.font = `${size}px 'You Blockhead', sans-serif`;
       let width = ctx.measureText(text).width + text.length * 0.15;
 
       // Only shrink names that actually exceed the fixed card.
       if (width > available) {
-        size = Math.max(12, 20 * available / width);
+        size = Math.max(12, 19 * available / width);
         ctx.font = `${size}px 'You Blockhead', sans-serif`;
         width = ctx.measureText(text).width + text.length * 0.15;
 
