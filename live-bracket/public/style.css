@@ -2046,3 +2046,52 @@ button,
     max-width: calc(100% - 38px) !important;
   }
 }
+
+
+/* --- Adaptive name-card sizing ---------------------------------------- */
+/* All player cards share one width based on the longest name in the
+   tournament. The text and winner crown scale together when space is tight. */
+.bracket-wrapper {
+  --team-width: 190px;
+  --name-font-size: 19px;
+  --crown-size: 34px;
+}
+
+.bracket-wrapper .col,
+.bracket-wrapper .col-center {
+  width: var(--team-width) !important;
+  flex: 0 0 var(--team-width);
+}
+
+.bracket-wrapper .team {
+  width: 100% !important;
+  min-width: 0;
+  font-size: var(--name-font-size) !important;
+}
+
+.bracket-wrapper .team .player-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100% !important;
+  font-size: var(--name-font-size) !important;
+  line-height: 1.08;
+  text-align: center !important;
+}
+
+.bracket-wrapper .team.winner .player-name {
+  max-width: calc(100% - var(--crown-size) - 7px) !important;
+}
+
+.bracket-wrapper .team.winner .crown-icon {
+  flex-basis: var(--crown-size);
+  width: var(--crown-size) !important;
+  height: var(--crown-size) !important;
+  max-width: var(--crown-size);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper .team {
+    min-height: 50px;
+  }
+}
+
