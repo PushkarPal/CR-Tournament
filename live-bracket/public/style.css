@@ -3146,8 +3146,8 @@ button,
   background-image: none !important;
   filter: none !important;
   box-shadow: none !important;
-  width: 42vw !important;
-  height: 39vh !important;
+  width: 40.74vw !important;
+  height: 37.83vh !important;
   margin-left: 0 !important;
   overflow: visible !important;
   transform-origin: center center !important;
@@ -3216,8 +3216,8 @@ button,
 
 @media (max-width: 900px) {
   .champion-crown {
-    width: 66vw !important;
-    height: 33vh !important;
+    width: 64.02vw !important;
+    height: 32.01vh !important;
   }
 
   .crown-middle {
