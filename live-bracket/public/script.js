@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamWidth = Math.min(212, viewportCap);
 
     wrapper.style.setProperty("--team-width", teamWidth + "px");
-    wrapper.style.setProperty("--name-font-size", "19px");
+    wrapper.style.setProperty("--name-font-size", "17px");
     wrapper.style.setProperty("--crown-size", "40px");
 
     const canvas = document.createElement("canvas");
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const isWinner = team.classList.contains("winner");
       const available = Math.max(72, teamWidth - 24 - (isWinner ? 47 : 0));
 
-      let size = 19;
+      let size = 17;
       if (ctx && text) {
         ctx.font = "19px 'You Blockhead', sans-serif";
         const width = ctx.measureText(text).width + text.length * 0.15;
@@ -145,11 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Names that need wrapping use a deliberately smaller size.
         // Normal-length names remain at the full 19px size.
         if (width > available) {
-          size = 17;
+          size = 15;
 
           // Give exceptionally long names a little more reduction.
           if (width > available * 1.55) {
-            size = Math.max(15, 17 * available / width);
+            size = Math.max(13, 15 * available / width);
           }
         }
       }
