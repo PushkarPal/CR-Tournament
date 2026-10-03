@@ -2454,26 +2454,26 @@ button,
   z-index: 4;
   width: min(270px, 21vw);
   height: min(190px, 18vh);
-  background-image: url('crowns.webp');
+  background-image: url('crowns.png');
   background-repeat: no-repeat;
-  background-size: 900px 360px;
+  background-size: 1100px 330px;
   filter: drop-shadow(0 12px 12px rgba(0,0,0,.5));
   transform: translateX(-50%) scale(.5);
 }
 
 .crown-middle {
   top: 51vh;
-  background-position: -300px -15px;
+  background-position: -367px -8px;
 }
 .crown-left {
   top: 55vh;
   margin-left: -22vw;
-  background-position: 0 -90px;
+  background-position: 0 -49px;
 }
 .crown-right {
   top: 55vh;
   margin-left: 22vw;
-  background-position: -615px -90px;
+  background-position: -662px -49px;
 }
 
 .champion-ribbon {
@@ -2595,10 +2595,10 @@ button,
 @media (max-width: 900px) {
   .champion-king { width: min(350px, 58vw); height: min(430px, 48vh); top: 7vh; }
   .champion-winner { top: 43vh; font-size: clamp(42px, 12vw, 78px); }
-  .champion-crown { width: 190px; height: 145px; background-size: 640px 256px; }
-  .crown-middle { background-position: -214px -10px; }
-  .crown-left { margin-left: -28vw; background-position: 0 -64px; }
-  .crown-right { margin-left: 28vw; background-position: -437px -64px; }
+  .champion-crown { width: 190px; height: 145px; background-size: 760px 228px; }
+  .crown-middle { background-position: -253px -6px; }
+  .crown-left { margin-left: -28vw; background-position: 0 -34px; }
+  .crown-right { margin-left: 28vw; background-position: -458px -34px; }
   .champion-ribbon { top: 72vh; width: 78vw; height: 19vh; }
   .champion-ribbon-name { top: 78vh; width: 65vw; font-size: clamp(24px, 6vw, 40px); }
 }
