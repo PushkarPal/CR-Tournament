@@ -2132,3 +2132,27 @@ button,
     linear-gradient(180deg, rgba(101, 77, 15, .96), rgba(47, 34, 7, .98));
 }
 
+/* --- Solid grey eliminated cards -------------------------------------- */
+.bracket-wrapper .team.loser {
+  opacity: 1 !important;
+  filter: grayscale(100%) !important;
+  border-color: #777f87 !important;
+  background:
+    linear-gradient(180deg, #5b6269 0%, #3d444b 48%, #2c3238 100%) !important;
+  color: #d1d5d8 !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.14),
+    inset 0 -4px 0 rgba(0,0,0,.28),
+    0 0 0 2px #15191d,
+    0 4px 9px rgba(0,0,0,.65) !important;
+}
+
+.bracket-wrapper .team.loser .player-name {
+  color: #d7dadd !important;
+  opacity: 1 !important;
+  text-shadow: 1px 1px 0 #20252a !important;
+}
+
+.bracket-wrapper .team.loser .crown-icon {
+  opacity: .35 !important;
+}
