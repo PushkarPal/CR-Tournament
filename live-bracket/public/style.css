@@ -3165,23 +3165,23 @@ button,
 
 .crown-middle {
   left: 67vw !important;
-  top: 49vh !important;
+  top: 40vh !important;
   width: 42vw !important;
   height: 39vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-left {
-  left: 58vw !important;
-  top: 52vh !important;
+  left: 52vw !important;
+  top: 43vh !important;
   width: 42vw !important;
   height: 39vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-right {
-  left: 76vw !important;
-  top: 52vh !important;
+  left: 82vw !important;
+  top: 43vh !important;
   width: 42vw !important;
   height: 39vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
@@ -3222,16 +3222,16 @@ button,
 
   .crown-middle {
     left: 67vw !important;
-    top: 50vh !important;
+    top: 41vh !important;
   }
 
   .crown-left {
-    left: 58vw !important;
-    top: 53vh !important;
+    left: 52vw !important;
+    top: 44vh !important;
   }
 
   .crown-right {
-    left: 76vw !important;
-    top: 53vh !important;
+    left: 82vw !important;
+    top: 44vh !important;
   }
 }
