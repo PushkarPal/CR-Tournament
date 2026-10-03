@@ -1711,3 +1711,9 @@ button,
 .bracket-wrapper {
   transform: translateY(-10px);
 }
+
+
+/* --- Tiny final upward adjustment -------------------------------------- */
+.bracket-wrapper {
+  transform: translateY(-12px);
+}
