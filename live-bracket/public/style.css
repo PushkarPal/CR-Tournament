@@ -1640,3 +1640,18 @@ button,
   filter: none !important;
   text-shadow: none !important;
 }
+
+
+/* --- Player-name typography refinement ------------------------------- */
+/* Use a cleaner, wider bold face while keeping the Clash Royale feel. */
+.team .player-name,
+.team:not(.team-empty) .player-name,
+.team.team-empty .player-name {
+  font-family: 'Trebuchet MS', 'Arial Rounded MT Bold', Arial, sans-serif !important;
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  line-height: 1.15 !important;
+  font-stretch: expanded;
+  text-align: center;
+}
