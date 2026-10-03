@@ -2879,3 +2879,26 @@ button,
 .crown-right {
   background-position-x: -31vw !important;
 }
+
+
+/* --- Champion crowns: use the deployed full artwork sprite ------------- */
+.champion-crown {
+  width: 17vw !important;
+  height: 18.7vh !important;
+  background-image: url('crowns.webp') !important;
+  background-repeat: no-repeat !important;
+  background-size: 57.62vw 18.7vh !important;
+  background-position-y: 0 !important;
+}
+
+.crown-left {
+  background-position-x: 0 !important;
+}
+
+.crown-middle {
+  background-position-x: -19vw !important;
+}
+
+.crown-right {
+  background-position-x: -38.5vw !important;
+}
