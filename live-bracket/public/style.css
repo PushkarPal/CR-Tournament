@@ -1927,3 +1927,81 @@ button,
     left: 6px;
   }
 }
+
+
+/* --- Centered names + subtle winner-crown reveal ---------------------- */
+/* Before a winner is chosen, the name owns the full card and stays exactly
+   centered. When a winner is chosen, the crown expands into the flex group
+   and the whole crown + name group remains centered. */
+.team {
+  justify-content: center;
+  overflow: hidden;
+}
+
+.team .player-name {
+  flex: 0 1 auto;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0;
+  margin-left: 0 !important;
+  padding: 0 4px !important;
+  text-align: center !important;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  white-space: normal;
+  transition: max-width .22s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Hidden but still present so it can animate into place. */
+.team .crown-icon {
+  position: static !important;
+  flex: 0 0 0;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0;
+  margin: 0 !important;
+  opacity: 0;
+  transform: translateX(-5px) scale(.72);
+  object-fit: contain;
+  overflow: hidden;
+  transition:
+    width .22s cubic-bezier(.22, 1, .36, 1),
+    height .22s cubic-bezier(.22, 1, .36, 1),
+    flex-basis .22s cubic-bezier(.22, 1, .36, 1),
+    opacity .16s ease-out,
+    transform .22s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Once selected, crown + name form one centered visual group. */
+.team.winner .crown-icon {
+  flex-basis: 28px;
+  width: 28px !important;
+  height: 28px !important;
+  max-width: 28px;
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.team.winner .player-name {
+  max-width: calc(100% - 35px) !important;
+}
+
+/* Keep long names usable on the smaller desktop viewport. */
+@media (max-height: 800px) and (min-width: 901px) {
+  .team .player-name {
+    font-size: 18px !important;
+    letter-spacing: .7px !important;
+  }
+
+  .team.winner .crown-icon {
+    flex-basis: 25px;
+    width: 25px !important;
+    height: 25px !important;
+    max-width: 25px;
+  }
+
+  .team.winner .player-name {
+    max-width: calc(100% - 32px) !important;
+  }
+}
