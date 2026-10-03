@@ -118,39 +118,47 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const longestName = players.reduce((longest, name) =>
-      String(name || "").length > String(longest || "").length ? name : longest, ""
-    );
-
-    ctx.font = "19px 'You Blockhead', sans-serif";
-    const longestText = String(longestName || "");
-    const measured = Math.ceil(
-      ctx.measureText(longestText).width + longestText.length * 1
-    ) + 12;
-
-    // Every card uses the same width, sized from the longest player name.
-    // The cap keeps the seven-column bracket inside the desktop viewport.
+    // Keep every name card exactly the same width. Text adapts to the card,
+    // rather than changing the card size for different player names.
     const viewportCap = Math.max(150, Math.floor((wrapper.clientWidth - 12) / 7));
-    // Keep the overall 1600px bracket canvas unchanged, while leaving
-  // a little more breathing room between rounds.
-  const teamWidth = Math.min(Math.max(150, measured + 56), Math.min(212, viewportCap));
-
-    // If an exceptionally long name reaches the width cap, reduce the text
-    // rather than letting it clip or push the crown out of the card.
-    // Reserve room for the crown, card padding, and a small safety margin.
-    // This keeps even the longest name fully visible inside the shared card.
-    // Winners need extra horizontal room for the crown + the gap beside it.
-    // Size the font against the actual winner text area, not the full card.
-    const usableTextWidth = Math.max(72, teamWidth - 66);
-    const fontSize = Math.max(
-      12,
-      Math.min(19, 19 * usableTextWidth / Math.max(measured - 12, 1))
-    );
-    const crownSize = Math.max(29, Math.min(34, fontSize * 1.72));
+    const teamWidth = Math.min(212, viewportCap);
 
     wrapper.style.setProperty("--team-width", teamWidth + "px");
-    wrapper.style.setProperty("--name-font-size", fontSize.toFixed(2) + "px");
-    wrapper.style.setProperty("--crown-size", crownSize.toFixed(2) + "px");
+    wrapper.style.setProperty("--name-font-size", "21px");
+    wrapper.style.setProperty("--crown-size", "40px");
+
+    const nameNodes = wrapper.querySelectorAll(".team .player-name");
+    nameNodes.forEach((nameNode) => {
+      const team = nameNode.closest(".team");
+      if (!team || team.classList.contains("team-empty")) {
+        nameNode.style.removeProperty("font-size");
+        return;
+      }
+
+      const text = String(nameNode.textContent || "");
+      const isWinner = team.classList.contains("winner");
+      const crownSpace = isWinner ? 40 + 7 : 0;
+      const available = Math.max(72, teamWidth - 24 - crownSpace);
+
+      let size = 21;
+      ctx.font = `${size}px 'You Blockhead', sans-serif`;
+      let width = ctx.measureText(text).width + text.length * 0.15;
+
+      // Only shrink names that actually exceed the fixed card.
+      if (width > available) {
+        size = Math.max(12, 21 * available / width);
+        ctx.font = `${size}px 'You Blockhead', sans-serif`;
+        width = ctx.measureText(text).width + text.length * 0.15;
+
+        while (size > 12 && width > available) {
+          size -= 0.25;
+          ctx.font = `${size}px 'You Blockhead', sans-serif`;
+          width = ctx.measureText(text).width + text.length * 0.15;
+        }
+      }
+
+      nameNode.style.fontSize = size.toFixed(2) + "px";
+    });
   }
 
   function buildBracket() {
