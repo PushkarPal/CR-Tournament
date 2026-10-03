@@ -2210,3 +2210,10 @@ button,
     max-width: 36px !important;
   }
 }
+
+
+/* --- Slightly faded waiting text ------------------------------------ */
+.bracket-wrapper .team.team-empty .player-name {
+  color: #9aa5b1 !important;
+  opacity: .72 !important;
+}
