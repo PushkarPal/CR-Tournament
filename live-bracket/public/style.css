@@ -2606,3 +2606,21 @@ button,
 @media (prefers-reduced-motion: reduce) {
   .champion-reveal.show * { animation-duration: .01ms !important; animation-delay: 0ms !important; }
 }
+
+
+/* Champion ribbon name follows the ribbon arc without wrapping. */
+.champion-ribbon-name {
+  position: absolute !important;
+  display: block !important;
+  min-height: 0 !important;
+  height: 80px !important;
+  overflow: visible !important;
+}
+.champion-ribbon-name span {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  display: block;
+  white-space: pre !important;
+  transform-origin: 50% 50%;
+}
