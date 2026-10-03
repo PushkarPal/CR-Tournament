@@ -2454,7 +2454,7 @@ button,
   z-index: 4;
   width: min(270px, 21vw);
   height: min(190px, 18vh);
-  background-image: url('crowns.svg');
+  background-image: url('crowns.webp');
   background-repeat: no-repeat;
   background-size: 900px 360px;
   filter: drop-shadow(0 12px 12px rgba(0,0,0,.5));
