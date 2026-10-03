@@ -3011,3 +3011,100 @@ button,
     transform: translate(-50%, 0) scale(1);
   }
 }
+
+
+/* --- Separate champion crown assets ----------------------------------- */
+.champion-crowns {
+  display: none !important;
+}
+
+.champion-crown {
+  position: absolute !important;
+  z-index: 20 !important;
+  opacity: 0 !important;
+  background: none !important;
+  background-image: none !important;
+  overflow: visible !important;
+  filter: drop-shadow(0 12px 12px rgba(0,0,0,.5));
+  pointer-events: none !important;
+}
+
+.champion-crown img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.crown-left {
+  left: 43vw !important;
+  top: 34vh !important;
+  margin-left: 0 !important;
+  width: 15vw !important;
+  height: 15vh !important;
+  transform: translate(-50%, 40px) scale(.72) !important;
+}
+
+.crown-middle {
+  left: 56vw !important;
+  top: 31vh !important;
+  margin-left: 0 !important;
+  width: 15vw !important;
+  height: 15vh !important;
+  transform: translate(-50%, 40px) scale(.72) !important;
+}
+
+.crown-right {
+  left: 70vw !important;
+  top: 35vh !important;
+  margin-left: 0 !important;
+  width: 15vw !important;
+  height: 15vh !important;
+  transform: translate(-50%, 40px) scale(.72) !important;
+}
+
+.champion-reveal.show .crown-middle {
+  animation: championSeparateCrownPop .55s cubic-bezier(.22,1,.36,1) 1.45s both !important;
+}
+.champion-reveal.show .crown-left {
+  animation: championSeparateCrownPop .55s cubic-bezier(.22,1,.36,1) 1.72s both !important;
+}
+.champion-reveal.show .crown-right {
+  animation: championSeparateCrownPop .55s cubic-bezier(.22,1,.36,1) 1.99s both !important;
+}
+
+@keyframes championSeparateCrownPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 40px) scale(.72);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -3px) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .crown-left {
+    left: 43vw !important;
+    top: 34vh !important;
+    width: 22vw !important;
+    height: 13vh !important;
+  }
+  .crown-middle {
+    left: 56vw !important;
+    top: 31vh !important;
+    width: 22vw !important;
+    height: 13vh !important;
+  }
+  .crown-right {
+    left: 70vw !important;
+    top: 35vh !important;
+    width: 22vw !important;
+    height: 13vh !important;
+  }
+}
