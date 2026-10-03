@@ -2288,3 +2288,52 @@ button,
   font-size: 19px !important;
   white-space: nowrap !important;
 }
+
+
+/* --- Final name centering + subtle winner crown reveal ---------------- */
+.bracket-wrapper .team .player-name,
+.bracket-wrapper .team.winner .player-name {
+  font-size: 19px !important;
+}
+
+/* No winner: the name alone is centered. Winner: crown + name are one
+   centered group, with the crown expanding smoothly into place. */
+.bracket-wrapper .team:not(.winner) .crown-icon {
+  flex: 0 0 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  transform: scale(.65) !important;
+}
+
+.bracket-wrapper .team.winner .crown-icon {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+  transform: scale(1) !important;
+}
+
+.bracket-wrapper .team .crown-icon {
+  transition:
+    flex-basis .38s cubic-bezier(.22, 1, .36, 1),
+    width .38s cubic-bezier(.22, 1, .36, 1),
+    height .38s cubic-bezier(.22, 1, .36, 1),
+    max-width .38s cubic-bezier(.22, 1, .36, 1),
+    opacity .24s ease-out,
+    transform .38s cubic-bezier(.22, 1, .36, 1);
+  transform-origin: center;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .bracket-wrapper .team.winner .crown-icon {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+  }
+}
