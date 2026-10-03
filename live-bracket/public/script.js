@@ -361,8 +361,16 @@ document.addEventListener("DOMContentLoaded", () => {
         y2 = tRect.top + tRect.height/2 - wrapperRect.top;
       }
       
-      const offset = (conn.direction === 'right') ? 50 : -50;
-      const d = `M ${x1} ${y1} C ${x1 + offset} ${y1}, ${x2 - offset} ${y2}, ${x2} ${y2}`;
+      // Route through the open corridor between rounds. Do not let the
+      // connector curve enter the target player's name/card area.
+      const gap = Math.max(24, Math.min(70, Math.abs(x2 - x1) * 0.42));
+      const bendX = (conn.direction === 'right')
+        ? x1 + gap
+        : x1 - gap;
+      const approachX = (conn.direction === 'right')
+        ? x2 - gap
+        : x2 + gap;
+      const d = `M ${x1} ${y1} C ${bendX} ${y1}, ${approachX} ${y2}, ${x2} ${y2}`;
       
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", d);
