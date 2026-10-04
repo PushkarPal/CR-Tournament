@@ -894,11 +894,12 @@ document.addEventListener("DOMContentLoaded", () => {
       gl.deleteProgram(program);
     };
 
-    if (document.fonts && document.fonts.ready) {
+    if (document.fonts && document.fonts.ready && document.fonts.status !== "loaded") {
       document.fonts.ready.then(() => {
         if (
           document.documentElement.contains(node) &&
-          node.dataset.championName === text
+          node.dataset.championName === text &&
+          document.fonts.status === "loaded"
         ) {
           shapeChampionName(text);
         }
