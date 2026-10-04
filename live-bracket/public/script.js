@@ -947,18 +947,38 @@ document.addEventListener("DOMContentLoaded", () => {
       Math.max(10, ribbonRect.width * 0.018)
     );
 
+    /*
+     * One depth curve only:
+     *
+     *   baseZ = the existing center/front Z of the name
+     *   z     = baseZ + BOW_DEPTH * (1 - u²)
+     *
+     * The old ribbon surface already supplied its own Z curve. Using that Z
+     * and then adding another curve produced two overlapping depth functions.
+     * We keep the existing X/Y registration and use the center/front Z as the
+     * base, so the name has exactly one horizontal depth bend.
+     */
+    const centerSurfacePoint =
+      getRibbonSurfacePoint(0, TEXT_SURFACE_V);
+    const centerSurfaceFrame =
+      getRibbonSurfaceFrame(0);
+
+    const nameBaseZ =
+      centerSurfacePoint.z +
+      centerSurfaceFrame.normal.z * TEXT_OFFSET;
+
     function modelMatrixForGlyph(u, width, height) {
       const surfacePoint = getRibbonSurfacePoint(u, TEXT_SURFACE_V);
       const frame = getRibbonSurfaceFrame(u);
 
       /*
-       * Preserve the existing X/Y placement and existing base Z exactly.
-       * Only add the isolated X/Z bow to the already-computed position.
+       * X and Y remain exactly where the existing implementation placed them.
+       * Only Z is replaced by the single controlled name-depth curve.
        */
       const position = {
         x: surfacePoint.x + frame.normal.x * TEXT_OFFSET,
         y: surfacePoint.y + frame.normal.y * TEXT_OFFSET,
-        z: surfacePoint.z + frame.normal.z * TEXT_OFFSET
+        z: nameBaseZ
       };
 
       const x = position.x;
@@ -974,13 +994,20 @@ document.addEventListener("DOMContentLoaded", () => {
         -2 * textBowDepth * x /
         (textHalfWidth * textHalfWidth);
 
-      const bendAngle = Math.atan2(dzdx, 1);
+      const desiredAngle = Math.atan2(dzdx, 1);
 
       /*
-       * Rotate the EXISTING glyph frame around its vertical axis only.
-       * No new surface frame, quaternion, Y curve, or world-space placement
-       * is introduced.
+       * The existing ribbon frame already contains the ribbon's baseline
+       * horizontal orientation. Rotate by the DIFFERENCE between the desired
+       * name curve and that existing orientation, rather than rotating the
+       * already-curved frame a second time.
        */
+      const existingAngle =
+        Math.atan2(frame.tangent.z, frame.tangent.x);
+
+      const bendAngle =
+        desiredAngle - existingAngle;
+
       const cosAngle = Math.cos(bendAngle);
       const sinAngle = Math.sin(bendAngle);
 
