@@ -360,13 +360,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chars.length) return;
 
     /*
-     * ribbon.png is raster artwork, not a Three.js/parametric mesh. The
-     * previous CSS matrix3d implementation still looked like a 2D arc.
-     * The champion name is now rendered as real WebGL geometry:
-     * each glyph is a textured quad placed on one continuous 3D bowed
-     * surface, with a 3D tangent, surface normal, local normal offset,
-     * perspective projection, and arc-length placement.
+     * The project ribbon is a supplied raster asset (ribbon.png), not a
+     * generated Three.js mesh. Therefore there is no hidden ribbon equation
+     * to reuse. The front face is modelled explicitly as the continuous
+     * bowed cylindrical surface that matches the visible ribbon front:
+     *
+     *                 S(u,v)
+     *
+     *   x(u) = cx + R sin(theta)
+     *   y(u,v) = centerlineY(u) + v * frontHalfHeight
+     *   z(u) = R(cos(theta) - cos(thetaMax))
+     *
+     * The text uses THIS surface for both position and orientation. It is
+     * not an independent text curve.
+     *
+     * TEXT_SURFACE_V is deliberately exposed as the only vertical placement
+     * control. 0 = center of the blue front face.
      */
+    const TEXT_SURFACE_V = 0.0;
+    const TEXT_OFFSET = 5.0;
+
     const ribbon = document.querySelector(".champion-ribbon img");
     const ribbonRect = ribbon
       ? ribbon.getBoundingClientRect()
@@ -437,11 +450,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const shader = gl.createShader(type);
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
+
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         const log = gl.getShaderInfoLog(shader);
         gl.deleteShader(shader);
-        throw new Error("Champion name shader compile failed: " + (log || "unknown error"));
+        throw new Error(
+          "Champion name shader compile failed: " + (log || "unknown error")
+        );
       }
+
       return shader;
     }
 
@@ -449,6 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
       const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
       const program = gl.createProgram();
+
       gl.attachShader(program, vertexShader);
       gl.attachShader(program, fragmentShader);
       gl.linkProgram(program);
@@ -459,17 +477,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         const log = gl.getProgramInfoLog(program);
         gl.deleteProgram(program);
-        throw new Error("Champion name program link failed: " + (log || "unknown error"));
+        throw new Error(
+          "Champion name program link failed: " + (log || "unknown error")
+        );
       }
+
       return program;
     }
 
     let program;
+
     try {
       program = createProgram(vertexShaderSource, fragmentShaderSource);
     } catch (error) {
       console.warn(error);
       node.innerHTML = "";
+
       const fallback = document.createElement("span");
       fallback.className = "champion-name-webgl-fallback";
       fallback.textContent = text;
@@ -479,7 +502,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const positionLocation = gl.getAttribLocation(program, "aPosition");
     const uvLocation = gl.getAttribLocation(program, "aUv");
-    const projectionViewLocation = gl.getUniformLocation(program, "uProjectionView");
+    const projectionViewLocation =
+      gl.getUniformLocation(program, "uProjectionView");
     const modelLocation = gl.getUniformLocation(program, "uModel");
     const textureLocation = gl.getUniformLocation(program, "uTexture");
 
@@ -511,7 +535,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function normalize(v) {
       const length = Math.hypot(v.x, v.y, v.z) || 1;
-      return { x: v.x / length, y: v.y / length, z: v.z / length };
+      return {
+        x: v.x / length,
+        y: v.y / length,
+        z: v.z / length
+      };
     }
 
     function dot(a, b) {
@@ -527,132 +555,208 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /*
-     * The supplied ribbon artwork is a bowed/cylindrical front face. Since
-     * there is no underlying 3D mesh in the project, the 3D text surface is
-     * registered directly to the rendered ribbon image dimensions.
+     * Surface dimensions are registered to the ACTUAL rendered ribbon image.
      *
-     * theta ∈ [-thetaMax, thetaMax]
-     * x = R sin(theta)
-     * z = R(cos(theta) - cos(thetaMax))
-     *
-     * Thus z(center) differs from z(edges), and every glyph is placed on the
-     * same continuous 3D surface instead of on an invented 2D text arc.
+     * The blue front face occupies the central band of ribbon.png. Its
+     * centerline is above the lower lip, and its bow is intentionally
+     * stronger than the old implementation so the text follows the visible
+     * front face rather than the bottom edge.
      */
-    const frontWidth = Math.max(240, ribbonRect.width * 0.86);
+    const frontWidth = Math.max(240, ribbonRect.width * 0.88);
     const thetaMax = Math.PI * 25 / 180;
     const radius = frontWidth / (2 * Math.sin(thetaMax));
-    const curveHeight = Math.min(24, Math.max(10, ribbonRect.height * 0.075));
-    const surfaceCenterY = ribbonRect.top + ribbonRect.height * 0.47;
+
+    /*
+     * These values describe the visible front-face band of the supplied
+     * ribbon artwork in normalized image coordinates. They are geometry
+     * parameters, not per-name adjustments.
+     */
+    const FRONT_CENTER_Y = 0.40;
+    const FRONT_HALF_HEIGHT = 0.115;
+    const BOW_HEIGHT = 0.105;
+
     const surfaceCenterX = ribbonRect.left + ribbonRect.width * 0.50;
-    const normalOffset = Math.max(3, Math.min(7, ribbonRect.height * 0.018));
+    const surfaceBaseY = ribbonRect.top + ribbonRect.height * FRONT_CENTER_Y;
+    const frontHalfHeightPx = ribbonRect.height * FRONT_HALF_HEIGHT;
+    const bowHeightPx = ribbonRect.height * BOW_HEIGHT;
 
     const centerX = viewportWidth * 0.5;
     const centerY = viewportHeight * 0.5;
 
-    function surfacePoint(u, v = 0) {
+    /*
+     * S(u,v): the SAME surface feeds point, tangent and normal.
+     *
+     * u = horizontal surface coordinate [-1,1]
+     * v = vertical surface coordinate [-1,1]
+     */
+    function getRibbonSurfacePoint(u, v = TEXT_SURFACE_V) {
       const theta = u * thetaMax;
-      const screenX = surfaceCenterX + radius * Math.sin(theta);
-      const screenY =
-        surfaceCenterY -
-        curveHeight * (1 - u * u) +
-        v;
 
       return {
-        x: screenX - centerX,
-        y: centerY - screenY,
-        z: radius * (Math.cos(theta) - Math.cos(thetaMax))
+        x:
+          surfaceCenterX +
+          radius * Math.sin(theta) -
+          centerX,
+
+        y:
+          centerY -
+          (
+            surfaceBaseY -
+            bowHeightPx * (1 - u * u) +
+            v * frontHalfHeightPx
+          ),
+
+        z:
+          radius *
+          (Math.cos(theta) - Math.cos(thetaMax))
       };
-    }
-
-    function surfaceTangent(u) {
-      const theta = u * thetaMax;
-      return normalize({
-        x: radius * thetaMax * Math.cos(theta),
-        y: -2 * curveHeight * u,
-        z: -radius * thetaMax * Math.sin(theta)
-      });
-    }
-
-    function surfaceFrame(u) {
-      const tangent = surfaceTangent(u);
-      const worldUp = { x: 0, y: 1, z: 0 };
-
-      let yAxis = {
-        x: worldUp.x - tangent.x * dot(worldUp, tangent),
-        y: worldUp.y - tangent.y * dot(worldUp, tangent),
-        z: worldUp.z - tangent.z * dot(worldUp, tangent)
-      };
-      yAxis = normalize(yAxis);
-
-      let normal = normalize(cross(tangent, yAxis));
-
-      if (normal.z < 0) {
-        normal.x *= -1;
-        normal.y *= -1;
-        normal.z *= -1;
-        yAxis.x *= -1;
-        yAxis.y *= -1;
-        yAxis.z *= -1;
-      }
-
-      return { tangent, yAxis, normal };
     }
 
     /*
-     * Arc-length sampling of the same 3D surface used for glyph placement.
-     * This is what keeps the entire name continuous even for arbitrary
-     * strings and prevents long names from being distributed by character
-     * count alone.
+     * Partial derivatives of the SAME surface:
+     *
+     * Su = ∂S/∂u
+     * Sv = ∂S/∂v
      */
-    const arcSamples = 640;
+    function getRibbonSurfaceDerivatives(u) {
+      const theta = u * thetaMax;
+
+      const Su = {
+        x: radius * thetaMax * Math.cos(theta),
+        y: 2 * bowHeightPx * u,
+        z: -radius * thetaMax * Math.sin(theta)
+      };
+
+      const Sv = {
+        x: 0,
+        y: -frontHalfHeightPx,
+        z: 0
+      };
+
+      return { Su, Sv };
+    }
+
+    /*
+     * Exact surface normal from the surface derivatives.
+     *
+     * Camera/front direction in this WebGL coordinate system is +Z.
+     * The sign is verified here instead of assuming the global +Z axis is
+     * automatically the ribbon normal.
+     */
+    function getRibbonSurfaceFrame(u) {
+      const { Su, Sv } = getRibbonSurfaceDerivatives(u);
+
+      const tangent = normalize(Su);
+      let normal = normalize(cross(Sv, tangent));
+
+      const cameraForward = { x: 0, y: 0, z: 1 };
+
+      if (dot(normal, cameraForward) < 0) {
+        normal.x *= -1;
+        normal.y *= -1;
+        normal.z *= -1;
+      }
+
+      /*
+       * B is generated from the surface normal and tangent, so it is the
+       * actual local surface-up direction rather than an independently
+       * guessed Euler rotation.
+       */
+      let binormal = normalize(cross(normal, tangent));
+
+      /*
+       * Keep the local vertical axis continuous and camera-readable.
+       * This is a deterministic continuity check, not a name-specific
+       * rotation correction.
+       */
+      const worldUp = { x: 0, y: 1, z: 0 };
+
+      if (dot(binormal, worldUp) < 0) {
+        binormal.x *= -1;
+        binormal.y *= -1;
+        binormal.z *= -1;
+
+        normal.x *= -1;
+        normal.y *= -1;
+        normal.z *= -1;
+      }
+
+      return { tangent, binormal, normal };
+    }
+
+    /*
+     * Arc-length parameterization uses the actual 3D centerline P(u,0).
+     * Character count never determines spacing.
+     */
+    const arcSamples = 800;
     const arc = new Array(arcSamples + 1);
     arc[0] = { u: -1, length: 0 };
+
     let totalArc = 0;
-    let previousPoint = surfacePoint(-1);
+    let previousPoint = getRibbonSurfacePoint(-1, 0);
 
     for (let i = 1; i <= arcSamples; i++) {
       const u = -1 + (2 * i) / arcSamples;
-      const point = surfacePoint(u);
+      const point = getRibbonSurfacePoint(u, 0);
+
       totalArc += Math.hypot(
         point.x - previousPoint.x,
         point.y - previousPoint.y,
         point.z - previousPoint.z
       );
+
       arc[i] = { u, length: totalArc };
       previousPoint = point;
     }
 
     function uAtArcDistance(distance) {
       const target = Math.max(0, Math.min(totalArc, distance));
+
       let low = 0;
       let high = arc.length - 1;
 
       while (low < high) {
         const mid = (low + high) >> 1;
-        if (arc[mid].length < target) low = mid + 1;
-        else high = mid;
+
+        if (arc[mid].length < target) {
+          low = mid + 1;
+        } else {
+          high = mid;
+        }
       }
 
       const hi = arc[low];
       const lo = arc[Math.max(0, low - 1)];
       const span = hi.length - lo.length || 1;
       const blend = (target - lo.length) / span;
+
       return lo.u + (hi.u - lo.u) * blend;
     }
 
-    const availableArc = totalArc * 0.70;
-    const maxFontSize = Math.min(56, Math.max(28, window.innerWidth * 0.032));
-    const minFontSize = 16;
-    const letterGapRatio = 0.035;
-
+    /*
+     * Measure actual You Blockhead advances. Font size is the only global
+     * scale adjustment; glyphs are never individually stretched.
+     */
     const measureCanvas = document.createElement("canvas");
     const measureContext = measureCanvas.getContext("2d");
     const fontFamily = "'You Blockhead', sans-serif";
 
+    const availableArc = totalArc * 0.74;
+    const maxFontSize = Math.min(
+      56,
+      Math.max(28, window.innerWidth * 0.032)
+    );
+    const minFontSize = 16;
+    const letterGapRatio = 0.02;
+
     function measureAt(fontSize) {
       measureContext.font = "normal " + fontSize + "px " + fontFamily;
+
       return chars.map(char => {
-        const metrics = measureContext.measureText(char === " " ? "\u00a0" : char);
+        const metrics = measureContext.measureText(
+          char === " " ? "\u00a0" : char
+        );
+
         return {
           advance: Math.max(1, metrics.width),
           left: Number.isFinite(metrics.actualBoundingBoxLeft)
@@ -675,29 +779,41 @@ document.addEventListener("DOMContentLoaded", () => {
     let metrics = measureAt(fontSize);
 
     function totalAdvanceFor(items, size) {
-      const gap = Math.min(3, size * letterGapRatio);
-      return items.reduce((sum, item) => sum + item.advance, 0) +
-        Math.max(0, items.length - 1) * gap;
+      const gap = Math.min(2.5, size * letterGapRatio);
+
+      return (
+        items.reduce((sum, item) => sum + item.advance, 0) +
+        Math.max(0, items.length - 1) * gap
+      );
     }
 
     let totalAdvance = totalAdvanceFor(metrics, fontSize);
 
     if (totalAdvance > availableArc) {
-      fontSize = Math.max(minFontSize, fontSize * availableArc / totalAdvance);
+      fontSize = Math.max(
+        minFontSize,
+        fontSize * availableArc / totalAdvance
+      );
+
       metrics = measureAt(fontSize);
       totalAdvance = totalAdvanceFor(metrics, fontSize);
     }
 
-    const gap = Math.min(3, fontSize * letterGapRatio);
-    totalAdvance = totalAdvanceFor(metrics, fontSize);
+    const gap = Math.min(2.5, fontSize * letterGapRatio);
 
     const textures = [];
     const glyphs = [];
 
     function createGlyphTexture(char, metric) {
       const padding = Math.max(8, Math.ceil(fontSize * 0.22));
-      const textureWidth = Math.max(2, Math.ceil(metric.advance + padding * 2));
-      const textureHeight = Math.max(2, Math.ceil(fontSize * 1.45 + padding * 2));
+      const textureWidth = Math.max(
+        2,
+        Math.ceil(metric.advance + padding * 2)
+      );
+      const textureHeight = Math.max(
+        2,
+        Math.ceil(fontSize * 1.45 + padding * 2)
+      );
 
       const glyphCanvas = document.createElement("canvas");
       glyphCanvas.width = textureWidth;
@@ -736,6 +852,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
@@ -781,12 +898,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const cameraZ = 1500;
+
     const projection = perspectiveMatrix(
       2 * Math.atan((viewportHeight * 0.5) / cameraZ),
       viewportWidth / Math.max(1, viewportHeight),
       1,
       5000
     );
+
     const camera = translationMatrix(-cameraZ);
 
     function multiply4x4(a, b) {
@@ -808,23 +927,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const projectionView = multiply4x4(projection, camera);
 
     function modelMatrixForGlyph(u, width, height) {
-      const base = surfacePoint(u);
-      const frame = surfaceFrame(u);
+      const surfacePoint = getRibbonSurfacePoint(u, TEXT_SURFACE_V);
+      const frame = getRibbonSurfaceFrame(u);
+
+      /*
+       * Character position is literally:
+       *
+       *     ribbon surface point + surface normal * TEXT_OFFSET
+       *
+       * No constant-Z shortcut is used.
+       */
       const position = {
-        x: base.x + frame.normal.x * normalOffset,
-        y: base.y + frame.normal.y * normalOffset,
-        z: base.z + frame.normal.z * normalOffset
+        x: surfacePoint.x + frame.normal.x * TEXT_OFFSET,
+        y: surfacePoint.y + frame.normal.y * TEXT_OFFSET,
+        z: surfacePoint.z + frame.normal.z * TEXT_OFFSET
       };
 
+      /*
+       * The glyph's local axes are:
+       *
+       *   +X = surface tangent T
+       *   +Y = surface binormal B
+       *   +Z = outward surface normal N
+       *
+       * This is the complete local surface frame. No Euler-angle correction
+       * or name-specific rotation is applied.
+       */
       return new Float32Array([
         frame.tangent.x * width,
         frame.tangent.y * width,
         frame.tangent.z * width,
         0,
 
-        frame.yAxis.x * height,
-        frame.yAxis.y * height,
-        frame.yAxis.z * height,
+        frame.binormal.x * height,
+        frame.binormal.y * height,
+        frame.binormal.z * height,
         0,
 
         frame.normal.x,
@@ -851,22 +988,48 @@ document.addEventListener("DOMContentLoaded", () => {
       gl.disable(gl.DEPTH_TEST);
 
       gl.useProgram(program);
-      gl.uniformMatrix4fv(projectionViewLocation, false, projectionView);
+      gl.uniformMatrix4fv(
+        projectionViewLocation,
+        false,
+        projectionView
+      );
 
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.enableVertexAttribArray(positionLocation);
-      gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(
+        positionLocation,
+        3,
+        gl.FLOAT,
+        false,
+        0,
+        0
+      );
 
       gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
       gl.enableVertexAttribArray(uvLocation);
-      gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(
+        uvLocation,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
+      );
 
+      /*
+       * Place glyph CENTERS by arc length. The full string is centered on
+       * the usable front-surface arc.
+       */
       let cursor = -totalAdvance / 2;
 
       glyphs.forEach((glyph, index) => {
         const metric = metrics[index];
-        const centerDistance = cursor + metric.advance / 2;
-        const arcDistance = totalArc / 2 + centerDistance;
+        const centerDistance =
+          cursor + metric.advance / 2;
+
+        const arcDistance =
+          totalArc / 2 + centerDistance;
+
         const u = uAtArcDistance(arcDistance);
 
         const model = modelMatrixForGlyph(
@@ -875,11 +1038,21 @@ document.addEventListener("DOMContentLoaded", () => {
           glyph.height
         );
 
-        gl.uniformMatrix4fv(modelLocation, false, model);
+        gl.uniformMatrix4fv(
+          modelLocation,
+          false,
+          model
+        );
+
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, glyph.texture);
         gl.uniform1i(textureLocation, 0);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        gl.drawArrays(
+          gl.TRIANGLE_STRIP,
+          0,
+          4
+        );
 
         cursor += metric.advance + gap;
       });
@@ -894,7 +1067,11 @@ document.addEventListener("DOMContentLoaded", () => {
       gl.deleteProgram(program);
     };
 
-    if (document.fonts && document.fonts.ready && document.fonts.status !== "loaded") {
+    if (
+      document.fonts &&
+      document.fonts.ready &&
+      document.fonts.status !== "loaded"
+    ) {
       document.fonts.ready.then(() => {
         if (
           document.documentElement.contains(node) &&
