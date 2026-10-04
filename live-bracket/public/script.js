@@ -943,8 +943,8 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     const textHalfWidth = Math.max(1, totalAdvance * 0.5);
     const textBowDepth = Math.min(
-      28,
-      Math.max(10, ribbonRect.width * 0.018)
+      42,
+      Math.max(14, ribbonRect.width * 0.028)
     );
 
     /*
