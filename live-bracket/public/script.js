@@ -632,8 +632,7 @@ document.addEventListener("DOMContentLoaded", () => {
      *
      * For this Y-axis cylinder, these vectors are analytically orthogonal.
      * The two cross products below re-orthogonalize them without introducing
-     * a Frenet frame, a changing surface normal, or any string-specific
-     * correction.
+     * a changing surface-frame calculation or any string-specific correction.
      */
     function ribbonFrame(theta) {
       const xAxis = ribbonTangent(theta);
@@ -1020,10 +1019,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const arcDistance =
           totalArc / 2 + centerDistance;
 
-        const u = uAtArcDistance(arcDistance);
+        const theta = thetaAtArcDistance(arcDistance);
 
         const model = modelMatrixForGlyph(
-          u,
+          theta,
           glyph.width,
           glyph.height
         );
