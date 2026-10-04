@@ -933,16 +933,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const projectionView = multiply4x4(projection, camera);
 
+    /*
+     * The current glyph positions are already correct. The only additional
+     * transformation is a shallow horizontal depth bend registered to those
+     * existing positions.
+     *
+     * Positive Z is toward the camera in this renderer, so the middle of the
+     * word receives the small forward offset and the edges receive none.
+     */
+    const textHalfWidth = Math.max(1, totalAdvance * 0.5);
+    const textBowDepth = Math.min(
+      28,
+      Math.max(10, ribbonRect.width * 0.018)
+    );
+
     function modelMatrixForGlyph(u, width, height) {
       const surfacePoint = getRibbonSurfacePoint(u, TEXT_SURFACE_V);
       const frame = getRibbonSurfaceFrame(u);
 
       /*
-       * Character position is literally:
-       *
-       *     ribbon surface point + surface normal * TEXT_OFFSET
-       *
-       * No constant-Z shortcut is used.
+       * Preserve the existing X/Y placement and existing base Z exactly.
+       * Only add the isolated X/Z bow to the already-computed position.
        */
       const position = {
         x: surfacePoint.x + frame.normal.x * TEXT_OFFSET,
@@ -950,20 +961,47 @@ document.addEventListener("DOMContentLoaded", () => {
         z: surfacePoint.z + frame.normal.z * TEXT_OFFSET
       };
 
+      const x = position.x;
+      const normalizedX = Math.max(
+        -1,
+        Math.min(1, x / textHalfWidth)
+      );
+
+      const zOffset =
+        textBowDepth * (1 - normalizedX * normalizedX);
+
+      const dzdx =
+        -2 * textBowDepth * x /
+        (textHalfWidth * textHalfWidth);
+
+      const bendAngle = Math.atan2(dzdx, 1);
+
       /*
-       * The glyph's local axes are:
-       *
-       *   +X = surface tangent T
-       *   +Y = surface binormal B
-       *   +Z = outward surface normal N
-       *
-       * This is the complete local surface frame. No Euler-angle correction
-       * or name-specific rotation is applied.
+       * Rotate the EXISTING glyph frame around its vertical axis only.
+       * No new surface frame, quaternion, Y curve, or world-space placement
+       * is introduced.
        */
+      const cosAngle = Math.cos(bendAngle);
+      const sinAngle = Math.sin(bendAngle);
+
+      const tangent = {
+        x: frame.tangent.x * cosAngle + frame.normal.x * sinAngle,
+        y: frame.tangent.y,
+        z: -frame.tangent.x * sinAngle + frame.normal.z * cosAngle
+      };
+
+      const normal = {
+        x: frame.normal.x * cosAngle - frame.tangent.x * sinAngle,
+        y: frame.normal.y,
+        z: frame.tangent.z * sinAngle + frame.normal.z * cosAngle
+      };
+
+      position.z += zOffset;
+
       return new Float32Array([
-        frame.tangent.x * width,
-        frame.tangent.y * width,
-        frame.tangent.z * width,
+        tangent.x * width,
+        tangent.y * width,
+        tangent.z * width,
         0,
 
         frame.binormal.x * height,
@@ -971,9 +1009,9 @@ document.addEventListener("DOMContentLoaded", () => {
         frame.binormal.z * height,
         0,
 
-        frame.normal.x,
-        frame.normal.y,
-        frame.normal.z,
+        normal.x,
+        normal.y,
+        normal.z,
         0,
 
         position.x,
