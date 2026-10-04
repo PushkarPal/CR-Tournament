@@ -346,111 +346,280 @@ document.addEventListener("DOMContentLoaded", () => {
     const node = document.getElementById("champion-name");
     if (!node) return;
 
-    node.innerHTML = "";
     const text = String(name || "");
+    node.dataset.championName = text;
+
+    if (node._championName3DCleanup) {
+      node._championName3DCleanup();
+      node._championName3DCleanup = null;
+    }
+
+    node.innerHTML = "";
+
     const chars = Array.from(text);
     if (!chars.length) return;
 
     /*
-     * The ribbon artwork is a 2D image, not a 3D mesh, so its front
-     * centerline is approximated with one continuous 3D parametric curve.
-     *
-     * u ∈ [-1, 1]
-     * P(u) = (x(u), y(u), z(u))
-     *
-     * The z component is deliberately non-constant: the center of the
-     * ribbon projects toward the viewer while the ends recede.
+     * ribbon.png is raster artwork, not a Three.js/parametric mesh. The
+     * previous CSS matrix3d implementation still looked like a 2D arc.
+     * The champion name is now rendered as real WebGL geometry:
+     * each glyph is a textured quad placed on one continuous 3D bowed
+     * surface, with a 3D tangent, surface normal, local normal offset,
+     * perspective projection, and arc-length placement.
      */
     const ribbon = document.querySelector(".champion-ribbon img");
-    const ribbonWidth = ribbon ? ribbon.getBoundingClientRect().width : window.innerWidth * 0.72;
-    const usableWidth = Math.max(220, ribbonWidth * 0.68);
-    const maxFontSize = Math.min(54, Math.max(28, window.innerWidth * 0.031));
-    const minFontSize = 18;
-    const curveDepth = Math.min(72, Math.max(34, ribbonWidth * 0.045));
-    const curveHeight = Math.min(54, Math.max(24, ribbonWidth * 0.034));
+    const ribbonRect = ribbon
+      ? ribbon.getBoundingClientRect()
+      : {
+          left: window.innerWidth * 0.12,
+          top: window.innerHeight * 0.55,
+          width: window.innerWidth * 0.76,
+          height: window.innerHeight * 0.22
+        };
 
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const fontFamily = "'You Blockhead', sans-serif";
+    canvas.className = "champion-name-webgl";
+    canvas.setAttribute("aria-hidden", "true");
+    node.appendChild(canvas);
 
-    function measureAt(fontSize) {
-      ctx.font = `normal ${fontSize}px ${fontFamily}`;
-      return chars.map(char => {
-        const glyph = char === " " ? "\u00a0" : char;
-        const metrics = ctx.measureText(glyph);
-        return Math.max(1, metrics.width);
+    const gl = canvas.getContext("webgl", {
+      alpha: true,
+      antialias: true,
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: false
+    }) || canvas.getContext("experimental-webgl", {
+      alpha: true,
+      antialias: true,
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: false
+    });
+
+    if (!gl) {
+      const fallback = document.createElement("span");
+      fallback.className = "champion-name-webgl-fallback";
+      fallback.textContent = text;
+      node.appendChild(fallback);
+      return;
+    }
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    canvas.width = Math.max(1, Math.round(viewportWidth * dpr));
+    canvas.height = Math.max(1, Math.round(viewportHeight * dpr));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    const vertexShaderSource = [
+      "attribute vec3 aPosition;",
+      "attribute vec2 aUv;",
+      "uniform mat4 uProjectionView;",
+      "uniform mat4 uModel;",
+      "varying vec2 vUv;",
+      "void main() {",
+      "  vUv = aUv;",
+      "  gl_Position = uProjectionView * uModel * vec4(aPosition, 1.0);",
+      "}"
+    ].join("\n");
+
+    const fragmentShaderSource = [
+      "precision mediump float;",
+      "uniform sampler2D uTexture;",
+      "varying vec2 vUv;",
+      "void main() {",
+      "  vec4 color = texture2D(uTexture, vUv);",
+      "  if (color.a < 0.01) discard;",
+      "  gl_FragColor = color;",
+      "}"
+    ].join("\n");
+
+    function compileShader(type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        throw new Error("Champion name shader compile failed: " + (log || "unknown error"));
+      }
+      return shader;
+    }
+
+    function createProgram(vertexSource, fragmentSource) {
+      const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+      const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+      const program = gl.createProgram();
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const log = gl.getProgramInfoLog(program);
+        gl.deleteProgram(program);
+        throw new Error("Champion name program link failed: " + (log || "unknown error"));
+      }
+      return program;
+    }
+
+    let program;
+    try {
+      program = createProgram(vertexShaderSource, fragmentShaderSource);
+    } catch (error) {
+      console.warn(error);
+      node.innerHTML = "";
+      const fallback = document.createElement("span");
+      fallback.className = "champion-name-webgl-fallback";
+      fallback.textContent = text;
+      node.appendChild(fallback);
+      return;
+    }
+
+    const positionLocation = gl.getAttribLocation(program, "aPosition");
+    const uvLocation = gl.getAttribLocation(program, "aUv");
+    const projectionViewLocation = gl.getUniformLocation(program, "uProjectionView");
+    const modelLocation = gl.getUniformLocation(program, "uModel");
+    const textureLocation = gl.getUniformLocation(program, "uTexture");
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        -0.5, -0.5, 0,
+         0.5, -0.5, 0,
+        -0.5,  0.5, 0,
+         0.5,  0.5, 0
+      ]),
+      gl.STATIC_DRAW
+    );
+
+    const uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 0
+      ]),
+      gl.STATIC_DRAW
+    );
+
+    function normalize(v) {
+      const length = Math.hypot(v.x, v.y, v.z) || 1;
+      return { x: v.x / length, y: v.y / length, z: v.z / length };
+    }
+
+    function dot(a, b) {
+      return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    function cross(a, b) {
+      return {
+        x: a.y * b.z - a.z * b.y,
+        y: a.z * b.x - a.x * b.z,
+        z: a.x * b.y - a.y * b.x
+      };
+    }
+
+    /*
+     * The supplied ribbon artwork is a bowed/cylindrical front face. Since
+     * there is no underlying 3D mesh in the project, the 3D text surface is
+     * registered directly to the rendered ribbon image dimensions.
+     *
+     * theta ∈ [-thetaMax, thetaMax]
+     * x = R sin(theta)
+     * z = R(cos(theta) - cos(thetaMax))
+     *
+     * Thus z(center) differs from z(edges), and every glyph is placed on the
+     * same continuous 3D surface instead of on an invented 2D text arc.
+     */
+    const frontWidth = Math.max(240, ribbonRect.width * 0.86);
+    const thetaMax = Math.PI * 25 / 180;
+    const radius = frontWidth / (2 * Math.sin(thetaMax));
+    const curveHeight = Math.min(24, Math.max(10, ribbonRect.height * 0.075));
+    const surfaceCenterY = ribbonRect.top + ribbonRect.height * 0.47;
+    const surfaceCenterX = ribbonRect.left + ribbonRect.width * 0.50;
+    const normalOffset = Math.max(3, Math.min(7, ribbonRect.height * 0.018));
+
+    const centerX = viewportWidth * 0.5;
+    const centerY = viewportHeight * 0.5;
+
+    function surfacePoint(u, v = 0) {
+      const theta = u * thetaMax;
+      const screenX = surfaceCenterX + radius * Math.sin(theta);
+      const screenY =
+        surfaceCenterY -
+        curveHeight * (1 - u * u) +
+        v;
+
+      return {
+        x: screenX - centerX,
+        y: centerY - screenY,
+        z: radius * (Math.cos(theta) - Math.cos(thetaMax))
+      };
+    }
+
+    function surfaceTangent(u) {
+      const theta = u * thetaMax;
+      return normalize({
+        x: radius * thetaMax * Math.cos(theta),
+        y: -2 * curveHeight * u,
+        z: -radius * thetaMax * Math.sin(theta)
       });
     }
 
-    let fontSize = maxFontSize;
-    let widths = measureAt(fontSize);
-    let totalWidth = widths.reduce((sum, value) => sum + value, 0);
+    function surfaceFrame(u) {
+      const tangent = surfaceTangent(u);
+      const worldUp = { x: 0, y: 1, z: 0 };
 
-    if (totalWidth > usableWidth) {
-      fontSize = Math.max(minFontSize, fontSize * (usableWidth / totalWidth));
-      widths = measureAt(fontSize);
-      totalWidth = widths.reduce((sum, value) => sum + value, 0);
+      let yAxis = {
+        x: worldUp.x - tangent.x * dot(worldUp, tangent),
+        y: worldUp.y - tangent.y * dot(worldUp, tangent),
+        z: worldUp.z - tangent.z * dot(worldUp, tangent)
+      };
+      yAxis = normalize(yAxis);
+
+      let normal = normalize(cross(tangent, yAxis));
+
+      if (normal.z < 0) {
+        normal.x *= -1;
+        normal.y *= -1;
+        normal.z *= -1;
+        yAxis.x *= -1;
+        yAxis.y *= -1;
+        yAxis.z *= -1;
+      }
+
+      return { tangent, yAxis, normal };
     }
-
-    const gap = Math.min(3, fontSize * 0.045);
-    totalWidth += Math.max(0, chars.length - 1) * gap;
-
-    if (totalWidth > usableWidth) {
-      const scale = usableWidth / totalWidth;
-      fontSize = Math.max(minFontSize, fontSize * scale);
-      widths = measureAt(fontSize);
-      totalWidth = widths.reduce((sum, value) => sum + value, 0) +
-        Math.max(0, chars.length - 1) * gap;
-    }
-
-    const halfSpan = Math.max(100, Math.min(usableWidth * 0.5, totalWidth * 0.58));
-
-    const curvePoint = (u) => ({
-      x: halfSpan * u,
-      y: -curveHeight * (1 - u * u),
-      z: curveDepth * (1 - u * u)
-    });
-
-    const curveTangent = (u) => {
-      const tx = halfSpan;
-      const ty = 2 * curveHeight * u;
-      const tz = -2 * curveDepth * u;
-      const length = Math.hypot(tx, ty, tz) || 1;
-      return { x: tx / length, y: ty / length, z: tz / length };
-    };
 
     /*
-     * Build an arc-length lookup so glyphs are placed by their actual
-     * advance widths rather than by character count.
+     * Arc-length sampling of the same 3D surface used for glyph placement.
+     * This is what keeps the entire name continuous even for arbitrary
+     * strings and prevents long names from being distributed by character
+     * count alone.
      */
-    const samples = 320;
-    const arc = new Array(samples + 1);
+    const arcSamples = 640;
+    const arc = new Array(arcSamples + 1);
     arc[0] = { u: -1, length: 0 };
-    let accumulated = 0;
-    let previous = curvePoint(-1);
+    let totalArc = 0;
+    let previousPoint = surfacePoint(-1);
 
-    for (let i = 1; i <= samples; i++) {
-      const u = -1 + (2 * i) / samples;
-      const point = curvePoint(u);
-      accumulated += Math.hypot(
-        point.x - previous.x,
-        point.y - previous.y,
-        point.z - previous.z
+    for (let i = 1; i <= arcSamples; i++) {
+      const u = -1 + (2 * i) / arcSamples;
+      const point = surfacePoint(u);
+      totalArc += Math.hypot(
+        point.x - previousPoint.x,
+        point.y - previousPoint.y,
+        point.z - previousPoint.z
       );
-      arc[i] = { u, length: accumulated };
-      previous = point;
-    }
-
-    const totalArc = accumulated;
-    const targetHalfArc = Math.min(totalArc * 0.48, totalWidth * 0.52);
-    const usableArc = targetHalfArc * 2;
-    const arcScale = totalWidth > usableArc ? usableArc / totalWidth : 1;
-
-    if (arcScale < 1) {
-      fontSize = Math.max(minFontSize, fontSize * arcScale);
-      widths = measureAt(fontSize);
-      totalWidth = widths.reduce((sum, value) => sum + value, 0) +
-        Math.max(0, chars.length - 1) * gap;
+      arc[i] = { u, length: totalArc };
+      previousPoint = point;
     }
 
     function uAtArcDistance(distance) {
@@ -471,81 +640,270 @@ document.addEventListener("DOMContentLoaded", () => {
       return lo.u + (hi.u - lo.u) * blend;
     }
 
-    let cursor = -totalWidth / 2;
+    const availableArc = totalArc * 0.70;
+    const maxFontSize = Math.min(56, Math.max(28, window.innerWidth * 0.032));
+    const minFontSize = 16;
+    const letterGapRatio = 0.035;
 
-    chars.forEach((char, i) => {
-      const span = document.createElement("span");
-      span.textContent = char === " " ? "\u00a0" : char;
-      span.className = "champion-name-glyph";
-      span.style.setProperty("font-size", `${fontSize}px`, "important");
-      span.style.width = `${Math.max(1, widths[i])}px`;
-      span.style.height = `${fontSize * 1.15}px`;
-      span.style.marginLeft = `${-Math.max(1, widths[i]) / 2}px`;
-      span.style.marginTop = `${-(fontSize * 1.15) / 2}px`;
+    const measureCanvas = document.createElement("canvas");
+    const measureContext = measureCanvas.getContext("2d");
+    const fontFamily = "'You Blockhead', sans-serif";
 
-      const centerDistance = cursor + widths[i] / 2;
-      const arcDistance = totalArc / 2 + centerDistance;
-      const u = uAtArcDistance(arcDistance);
-      const point = curvePoint(u);
-      const tangent = curveTangent(u);
+    function measureAt(fontSize) {
+      measureContext.font = "normal " + fontSize + "px " + fontFamily;
+      return chars.map(char => {
+        const metrics = measureContext.measureText(char === " " ? "\u00a0" : char);
+        return {
+          advance: Math.max(1, metrics.width),
+          left: Number.isFinite(metrics.actualBoundingBoxLeft)
+            ? metrics.actualBoundingBoxLeft
+            : 0,
+          right: Number.isFinite(metrics.actualBoundingBoxRight)
+            ? metrics.actualBoundingBoxRight
+            : metrics.width,
+          ascent: Number.isFinite(metrics.actualBoundingBoxAscent)
+            ? metrics.actualBoundingBoxAscent
+            : fontSize * 0.78,
+          descent: Number.isFinite(metrics.actualBoundingBoxDescent)
+            ? metrics.actualBoundingBoxDescent
+            : fontSize * 0.22
+        };
+      });
+    }
 
-      /*
-       * Stable parallel frame:
-       *   X axis = curve tangent
-       *   Y axis = projected screen-up direction
-       *   Z axis = outward ribbon normal
-       *
-       * This gives every glyph a real 3D orientation instead of a
-       * collection of independent 2D rotations.
-       */
-      const up = { x: 0, y: 1, z: 0 };
-      const dot = tangent.y;
-      let yAxis = {
-        x: up.x - tangent.x * dot,
-        y: up.y - tangent.y * dot,
-        z: up.z - tangent.z * dot
-      };
-      const yLength = Math.hypot(yAxis.x, yAxis.y, yAxis.z) || 1;
-      yAxis = {
-        x: yAxis.x / yLength,
-        y: yAxis.y / yLength,
-        z: yAxis.z / yLength
-      };
+    let fontSize = maxFontSize;
+    let metrics = measureAt(fontSize);
 
-      let zAxis = {
-        x: tangent.y * yAxis.z - tangent.z * yAxis.y,
-        y: tangent.z * yAxis.x - tangent.x * yAxis.z,
-        z: tangent.x * yAxis.y - tangent.y * yAxis.x
-      };
-      const zLength = Math.hypot(zAxis.x, zAxis.y, zAxis.z) || 1;
-      zAxis = {
-        x: zAxis.x / zLength,
-        y: zAxis.y / zLength,
-        z: zAxis.z / zLength
-      };
+    function totalAdvanceFor(items, size) {
+      const gap = Math.min(3, size * letterGapRatio);
+      return items.reduce((sum, item) => sum + item.advance, 0) +
+        Math.max(0, items.length - 1) * gap;
+    }
 
-      if (zAxis.z < 0) {
-        zAxis.x *= -1;
-        zAxis.y *= -1;
-        zAxis.z *= -1;
-        yAxis.x *= -1;
-        yAxis.y *= -1;
-        yAxis.z *= -1;
+    let totalAdvance = totalAdvanceFor(metrics, fontSize);
+
+    if (totalAdvance > availableArc) {
+      fontSize = Math.max(minFontSize, fontSize * availableArc / totalAdvance);
+      metrics = measureAt(fontSize);
+      totalAdvance = totalAdvanceFor(metrics, fontSize);
+    }
+
+    const gap = Math.min(3, fontSize * letterGapRatio);
+    totalAdvance = totalAdvanceFor(metrics, fontSize);
+
+    const textures = [];
+    const glyphs = [];
+
+    function createGlyphTexture(char, metric) {
+      const padding = Math.max(8, Math.ceil(fontSize * 0.22));
+      const textureWidth = Math.max(2, Math.ceil(metric.advance + padding * 2));
+      const textureHeight = Math.max(2, Math.ceil(fontSize * 1.45 + padding * 2));
+
+      const glyphCanvas = document.createElement("canvas");
+      glyphCanvas.width = textureWidth;
+      glyphCanvas.height = textureHeight;
+
+      const context = glyphCanvas.getContext("2d");
+      context.clearRect(0, 0, textureWidth, textureHeight);
+      context.font = "normal " + fontSize + "px " + fontFamily;
+      context.textAlign = "left";
+      context.textBaseline = "alphabetic";
+      context.imageSmoothingEnabled = true;
+
+      const baseline = padding + metric.ascent;
+      const drawX = padding + metric.left;
+
+      if (char !== " ") {
+        context.shadowColor = "rgba(54, 20, 0, 0.95)";
+        context.shadowBlur = Math.max(0, fontSize * 0.045);
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = Math.max(2, fontSize * 0.075);
+        context.fillStyle = "#fff7d2";
+        context.fillText(char, drawX, baseline);
+
+        context.shadowColor = "rgba(70, 28, 0, 0.9)";
+        context.shadowBlur = 0;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = Math.max(3, fontSize * 0.10);
+        context.fillStyle = "#fff7d2";
+        context.fillText(char, drawX, baseline);
       }
 
-      /*
-       * CSS matrix3d is column-major. Its first three columns are the
-       * glyph's local X/Y/Z axes; the last column is P(t), including Z.
-       */
-      span.style.transform =
-        `matrix3d(${tangent.x},${tangent.y},${tangent.z},0,` +
-        `${yAxis.x},${yAxis.y},${yAxis.z},0,` +
-        `${zAxis.x},${zAxis.y},${zAxis.z},0,` +
-        `${point.x},${point.y},${point.z},1)`;
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        glyphCanvas
+      );
 
-      node.appendChild(span);
-      cursor += widths[i] + gap;
+      textures.push(texture);
+
+      return {
+        texture,
+        width: metric.advance + padding * 2,
+        height: textureHeight,
+        metric
+      };
+    }
+
+    chars.forEach((char, index) => {
+      glyphs.push(createGlyphTexture(char, metrics[index]));
     });
+
+    function perspectiveMatrix(fovY, aspect, near, far) {
+      const f = 1 / Math.tan(fovY / 2);
+      const rangeInv = 1 / (near - far);
+
+      return new Float32Array([
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (near + far) * rangeInv, -1,
+        0, 0, (2 * near * far) * rangeInv, 0
+      ]);
+    }
+
+    function translationMatrix(z) {
+      return new Float32Array([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, z, 1
+      ]);
+    }
+
+    const cameraZ = 1500;
+    const projection = perspectiveMatrix(
+      2 * Math.atan((viewportHeight * 0.5) / cameraZ),
+      viewportWidth / Math.max(1, viewportHeight),
+      1,
+      5000
+    );
+    const camera = translationMatrix(-cameraZ);
+
+    function multiply4x4(a, b) {
+      const out = new Float32Array(16);
+
+      for (let col = 0; col < 4; col++) {
+        for (let row = 0; row < 4; row++) {
+          out[col * 4 + row] =
+            a[0 * 4 + row] * b[col * 4 + 0] +
+            a[1 * 4 + row] * b[col * 4 + 1] +
+            a[2 * 4 + row] * b[col * 4 + 2] +
+            a[3 * 4 + row] * b[col * 4 + 3];
+        }
+      }
+
+      return out;
+    }
+
+    const projectionView = multiply4x4(projection, camera);
+
+    function modelMatrixForGlyph(u, width, height) {
+      const base = surfacePoint(u);
+      const frame = surfaceFrame(u);
+      const position = {
+        x: base.x + frame.normal.x * normalOffset,
+        y: base.y + frame.normal.y * normalOffset,
+        z: base.z + frame.normal.z * normalOffset
+      };
+
+      return new Float32Array([
+        frame.tangent.x * width,
+        frame.tangent.y * width,
+        frame.tangent.z * width,
+        0,
+
+        frame.yAxis.x * height,
+        frame.yAxis.y * height,
+        frame.yAxis.z * height,
+        0,
+
+        frame.normal.x,
+        frame.normal.y,
+        frame.normal.z,
+        0,
+
+        position.x,
+        position.y,
+        position.z,
+        1
+      ]);
+    }
+
+    function draw() {
+      if (!document.documentElement.contains(canvas)) return;
+
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.disable(gl.DEPTH_TEST);
+
+      gl.useProgram(program);
+      gl.uniformMatrix4fv(projectionViewLocation, false, projectionView);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+      gl.enableVertexAttribArray(uvLocation);
+      gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+      let cursor = -totalAdvance / 2;
+
+      glyphs.forEach((glyph, index) => {
+        const metric = metrics[index];
+        const centerDistance = cursor + metric.advance / 2;
+        const arcDistance = totalArc / 2 + centerDistance;
+        const u = uAtArcDistance(arcDistance);
+
+        const model = modelMatrixForGlyph(
+          u,
+          glyph.width,
+          glyph.height
+        );
+
+        gl.uniformMatrix4fv(modelLocation, false, model);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, glyph.texture);
+        gl.uniform1i(textureLocation, 0);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        cursor += metric.advance + gap;
+      });
+    }
+
+    draw();
+
+    node._championName3DCleanup = () => {
+      textures.forEach(texture => gl.deleteTexture(texture));
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteBuffer(uvBuffer);
+      gl.deleteProgram(program);
+    };
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        if (
+          document.documentElement.contains(node) &&
+          node.dataset.championName === text
+        ) {
+          shapeChampionName(text);
+        }
+      });
+    }
   }
 
   function playChampionVictory() {
@@ -699,7 +1057,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (splash && splash.classList.contains("show")) {
         const championName = document.getElementById("champion-name");
         if (championName) {
-          shapeChampionName(championName.textContent.replace(/\u00a0/g, " "));
+          shapeChampionName(championName.dataset.championName || championName.textContent.replace(/\u00a0/g, " "));
         }
       }
     });
