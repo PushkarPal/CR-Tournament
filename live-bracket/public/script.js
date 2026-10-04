@@ -985,15 +985,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const sinAngle = Math.sin(bendAngle);
 
       const tangent = {
-        x: frame.tangent.x * cosAngle + frame.normal.x * sinAngle,
+        x: frame.tangent.x * cosAngle + frame.tangent.z * sinAngle,
         y: frame.tangent.y,
-        z: -frame.tangent.x * sinAngle + frame.normal.z * cosAngle
+        z: -frame.tangent.x * sinAngle + frame.tangent.z * cosAngle
       };
 
       const normal = {
-        x: frame.normal.x * cosAngle - frame.tangent.x * sinAngle,
+        x: frame.normal.x * cosAngle + frame.normal.z * sinAngle,
         y: frame.normal.y,
-        z: frame.tangent.z * sinAngle + frame.normal.z * cosAngle
+        z: -frame.normal.x * sinAngle + frame.normal.z * cosAngle
       };
 
       position.z += zOffset;
