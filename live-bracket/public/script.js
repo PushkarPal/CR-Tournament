@@ -377,8 +377,21 @@ document.addEventListener("DOMContentLoaded", () => {
      * TEXT_SURFACE_V is deliberately exposed as the only vertical placement
      * control. 0 = center of the blue front face.
      */
-    const TEXT_SURFACE_V = 0.0;
-    const TEXT_OFFSET = 5.0;
+    /*
+     * Champion-name geometry
+     * -----------------------
+     * The supplied ribbon is raster artwork, so it does not expose a mesh or
+     * Three.js geometry that the text can literally attach to. The visible
+     * front bow is therefore represented by the mathematically equivalent
+     * cylindrical arc requested for this ribbon.
+     *
+     * The WebGL camera is placed at +Z and translated by -cameraZ, so +Z is
+     * the camera-facing direction in this renderer. The center of the arc is
+     * therefore the maximum front depth and the two sides recede in -Z.
+     */
+    const TEXT_CENTER_Y = 0.40;
+    const TEXT_Y_BOW = 0.0;
+    const TEXT_OFFSET = 4.0;
 
     const ribbon = document.querySelector(".champion-ribbon img");
     const ribbonRect = ribbon
@@ -433,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "  vUv = aUv;",
       "  gl_Position = uProjectionView * uModel * vec4(aPosition, 1.0);",
       "}"
-    ].join("\n");
+    ].join("\\n");
 
     const fragmentShaderSource = [
       "precision mediump float;",
@@ -444,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "  if (color.a < 0.01) discard;",
       "  gl_FragColor = color;",
       "}"
-    ].join("\n");
+    ].join("\\n");
 
     function compileShader(type, source) {
       const shader = gl.createShader(type);
@@ -542,10 +555,6 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    function dot(a, b) {
-      return a.x * b.x + a.y * b.y + a.z * b.z;
-    }
-
     function cross(a, b) {
       return {
         x: a.y * b.z - a.z * b.y,
@@ -555,180 +564,129 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /*
-     * Surface dimensions are registered to the ACTUAL rendered ribbon image.
-     *
-     * The blue front face occupies the central band of ribbon.png. Its
-     * centerline is above the lower lip, and its bow is intentionally
-     * stronger than the old implementation so the text follows the visible
-     * front face rather than the bottom edge.
+     * Derive the cylinder from the rendered ribbon width. thetaMax is the
+     * fixed angular extent of the visible front bow; radius follows directly
+     * from the chord width, so the radius scales with the actual ribbon.
      */
-    const frontWidth = Math.max(240, ribbonRect.width * 0.88);
     const thetaMax = Math.PI * 25 / 180;
+    const frontWidth = Math.max(240, ribbonRect.width * 0.88);
     const radius = frontWidth / (2 * Math.sin(thetaMax));
 
     /*
-     * These values describe the visible front-face band of the supplied
-     * ribbon artwork in normalized image coordinates. They are geometry
-     * parameters, not per-name adjustments.
+     * Convert the ribbon's screen-space center into the WebGL coordinate
+     * system. The cylinder is horizontal; Y is independent of Z curvature.
      */
-    const FRONT_CENTER_Y = 0.40;
-    const FRONT_HALF_HEIGHT = 0.115;
-    const BOW_HEIGHT = 0.105;
+    const centerX = ribbonRect.left + ribbonRect.width * 0.5;
+    const centerYScreen =
+      ribbonRect.top + ribbonRect.height * TEXT_CENTER_Y;
 
-    const surfaceCenterX = ribbonRect.left + ribbonRect.width * 0.50;
-    const frontHalfHeightPx = ribbonRect.height * FRONT_HALF_HEIGHT;
-    const bowHeightPx = ribbonRect.height * BOW_HEIGHT;
-
-    /*
-     * surfaceBaseY is the edge-of-face reference. Subtracting the bow at
-     * u=0 therefore lands the centerline exactly at FRONT_CENTER_Y.
-     */
-    const surfaceBaseY =
-      ribbonRect.top +
-      ribbonRect.height * (FRONT_CENTER_Y + BOW_HEIGHT);
-
-    const centerX = viewportWidth * 0.5;
-    const centerY = viewportHeight * 0.5;
-
-    /*
-     * S(u,v): the SAME surface feeds point, tangent and normal.
-     *
-     * u = horizontal surface coordinate [-1,1]
-     * v = vertical surface coordinate [-1,1]
-     */
-    function getRibbonSurfacePoint(u, v = TEXT_SURFACE_V) {
-      const theta = u * thetaMax;
+    function ribbonPoint(theta) {
+      const sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
 
       return {
-        x:
-          surfaceCenterX +
-          radius * Math.sin(theta) -
-          centerX,
-
-        y:
-          centerY -
-          (
-            surfaceBaseY -
-            bowHeightPx * (1 - u * u) +
-            v * frontHalfHeightPx
-          ),
-
-        z:
-          radius *
-          (Math.cos(theta) - Math.cos(thetaMax))
+        x: centerX + radius * sinTheta,
+        y: centerYScreen + TEXT_Y_BOW * (1 - cosTheta),
+        z: radius * (cosTheta - Math.cos(thetaMax))
       };
     }
 
     /*
-     * Partial derivatives of the SAME surface:
+     * The cylindrical front-surface normal is radial:
      *
-     * Su = ∂S/∂u
-     * Sv = ∂S/∂v
+     *     N = (sin(theta), 0, cos(theta))
+     *
+     * It is used for the small surface offset, never replaced by a global Z
+     * offset.
      */
-    function getRibbonSurfaceDerivatives(u) {
-      const theta = u * thetaMax;
-
-      const Su = {
-        x: radius * thetaMax * Math.cos(theta),
-        y: 2 * bowHeightPx * u,
-        z: -radius * thetaMax * Math.sin(theta)
-      };
-
-      const Sv = {
-        x: 0,
-        y: -frontHalfHeightPx,
-        z: 0
-      };
-
-      return { Su, Sv };
+    function ribbonNormal(theta) {
+      return normalize({
+        x: Math.sin(theta),
+        y: 0,
+        z: Math.cos(theta)
+      });
     }
 
     /*
-     * Exact surface normal from the surface derivatives.
+     * The cylindrical tangent is:
      *
-     * Camera/front direction in this WebGL coordinate system is +Z.
-     * The sign is verified here instead of assuming the global +Z axis is
-     * automatically the ribbon normal.
+     *     T = (cos(theta), 0, -sin(theta))
+     *
+     * This is the only direction used for character advance/orientation.
      */
-    function getRibbonSurfaceFrame(u) {
-      const { Su, Sv } = getRibbonSurfaceDerivatives(u);
+    function ribbonTangent(theta) {
+      return normalize({
+        x: Math.cos(theta),
+        y: 0,
+        z: -Math.sin(theta)
+      });
+    }
+
+    /*
+     * Stable cylindrical character frame.
+     *
+     * Local X = tangent
+     * Local Y = world UP
+     * Local Z = outward ribbon normal
+     *
+     * For this Y-axis cylinder, these vectors are analytically orthogonal.
+     * The two cross products below re-orthogonalize them without introducing
+     * a Frenet frame, a changing surface normal, or any string-specific
+     * correction.
+     */
+    function ribbonFrame(theta) {
+      const xAxis = ribbonTangent(theta);
+      const zAxis = ribbonNormal(theta);
+      const worldUp = { x: 0, y: 1, z: 0 };
 
       /*
-       * Build the frame from the differential geometry of the SAME ribbon
-       * surface. The old implementation used nested cross products followed
-       * by a world-up sign flip. That sign heuristic can change the handedness
-       * of the frame and is therefore not a valid orientation construction for
-       * arbitrary glyph samples.
-       *
-       * 1. T is the unit surface tangent.
-       * 2. Ns is the outward surface normal.
-       * 3. B is the surface normal projected into the plane perpendicular to T
-       *    (Gram-Schmidt), so it is the unique continuous surface-up direction
-       *    closest to the ribbon's actual normal field.
-       * 4. N is reconstructed from T and B, giving a right-handed orthonormal
-       *    frame with no sign heuristic, Euler correction, or name-dependent
-       *    branch.
+       * Y = Z × X. For the cylindrical equations above this is exactly
+       * (0,1,0) for every theta, so it can never flip at a character.
        */
-      const tangent = normalize(Su);
-
-      let surfaceNormal = normalize(cross(Sv, tangent));
+      let yAxis = normalize(cross(zAxis, xAxis));
 
       /*
-       * The ribbon front must face the camera. This is an orientation of the
-       * surface normal itself, not a per-glyph frame correction.
+       * Recompute X from Y × Z to remove any floating-point drift while
+       * preserving the same right-handed basis.
        */
-      const cameraForward = { x: 0, y: 0, z: 1 };
+      const correctedX = normalize(cross(yAxis, zAxis));
 
-      if (dot(surfaceNormal, cameraForward) < 0) {
-        surfaceNormal.x *= -1;
-        surfaceNormal.y *= -1;
-        surfaceNormal.z *= -1;
+      /*
+       * worldUp is retained as the defining reference for the vertical axis.
+       * The analytical cylinder already produces the same vector, so no sign
+       * branch is required.
+       */
+      if (
+        Math.abs(yAxis.x - worldUp.x) > 1e-7 ||
+        Math.abs(yAxis.y - worldUp.y) > 1e-7 ||
+        Math.abs(yAxis.z - worldUp.z) > 1e-7
+      ) {
+        yAxis = worldUp;
       }
 
-      /*
-       * Gram-Schmidt projection:
-       *
-       *     B = normalize(Ns - T * dot(Ns,T))
-       *
-       * Ns is theoretically perpendicular to T already, but explicitly
-       * projecting it makes the frame robust against numerical drift and
-       * guarantees B is orthogonal to the glyph's tangent.
-       */
-      const normalComponent = dot(surfaceNormal, tangent);
-      let binormal = {
-        x: surfaceNormal.x - tangent.x * normalComponent,
-        y: surfaceNormal.y - tangent.y * normalComponent,
-        z: surfaceNormal.z - tangent.z * normalComponent
+      return {
+        xAxis: correctedX,
+        yAxis,
+        zAxis
       };
-      binormal = normalize(binormal);
-
-      /*
-       * Reconstruct N from the two orthogonal axes. This locks the handedness
-       * of the glyph frame:
-       *
-       *     T × B = N
-       *
-       * There is no world-up comparison that can suddenly flip one glyph.
-       */
-      const normal = normalize(cross(tangent, binormal));
-
-      return { tangent, binormal, normal };
     }
 
     /*
-     * Arc-length parameterization uses the actual 3D centerline P(u,0).
-     * Character count never determines spacing.
+     * Arc-length lookup is over the actual cylindrical 3D path. For a
+     * cylinder this is analytically R*theta, but retaining the lookup keeps
+     * the layout robust if TEXT_Y_BOW is later enabled.
      */
     const arcSamples = 800;
     const arc = new Array(arcSamples + 1);
-    arc[0] = { u: -1, length: 0 };
+    arc[0] = { theta: -thetaMax, length: 0 };
 
     let totalArc = 0;
-    let previousPoint = getRibbonSurfacePoint(-1, 0);
+    let previousPoint = ribbonPoint(-thetaMax);
 
     for (let i = 1; i <= arcSamples; i++) {
-      const u = -1 + (2 * i) / arcSamples;
-      const point = getRibbonSurfacePoint(u, 0);
+      const theta =
+        -thetaMax + (2 * thetaMax * i) / arcSamples;
+      const point = ribbonPoint(theta);
 
       totalArc += Math.hypot(
         point.x - previousPoint.x,
@@ -736,11 +694,11 @@ document.addEventListener("DOMContentLoaded", () => {
         point.z - previousPoint.z
       );
 
-      arc[i] = { u, length: totalArc };
+      arc[i] = { theta, length: totalArc };
       previousPoint = point;
     }
 
-    function uAtArcDistance(distance) {
+    function thetaAtArcDistance(distance) {
       const target = Math.max(0, Math.min(totalArc, distance));
 
       let low = 0;
@@ -761,31 +719,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const span = hi.length - lo.length || 1;
       const blend = (target - lo.length) / span;
 
-      return lo.u + (hi.u - lo.u) * blend;
+      return lo.theta + (hi.theta - lo.theta) * blend;
     }
 
     /*
-     * Measure actual You Blockhead advances. Font size is the only global
-     * scale adjustment; glyphs are never individually stretched.
+     * Measure actual You Blockhead advances. There is no fixed character
+     * width and no string-length-dependent positioning.
      */
     const measureCanvas = document.createElement("canvas");
     const measureContext = measureCanvas.getContext("2d");
     const fontFamily = "'You Blockhead', sans-serif";
 
-    const availableArc = totalArc * 0.74;
     const maxFontSize = Math.min(
       56,
       Math.max(28, window.innerWidth * 0.032)
     );
-    const minFontSize = 16;
-    const letterGapRatio = 0.02;
+    const minFontSize = 12;
+    const requestedLetterGapRatio = 0.02;
 
     function measureAt(fontSize) {
       measureContext.font = "normal " + fontSize + "px " + fontFamily;
 
       return chars.map(char => {
         const metrics = measureContext.measureText(
-          char === " " ? "\u00a0" : char
+          char === " " ? "\\u00a0" : char
         );
 
         return {
@@ -806,31 +763,57 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    function sumAdvances(items) {
+      return items.reduce((sum, item) => sum + item.advance, 0);
+    }
+
     let fontSize = maxFontSize;
     let metrics = measureAt(fontSize);
+    let letterGap = Math.min(2.5, fontSize * requestedLetterGapRatio);
+    let totalAdvance = sumAdvances(metrics) +
+      Math.max(0, chars.length - 1) * letterGap;
 
-    function totalAdvanceFor(items, size) {
-      const gap = Math.min(2.5, size * letterGapRatio);
-
-      return (
-        items.reduce((sum, item) => sum + item.advance, 0) +
-        Math.max(0, items.length - 1) * gap
-      );
-    }
-
-    let totalAdvance = totalAdvanceFor(metrics, fontSize);
-
-    if (totalAdvance > availableArc) {
-      fontSize = Math.max(
+    /*
+     * Fit the whole string to the complete [-thetaMax,+thetaMax] arc.
+     * First reduce font size, then reduce letter spacing. Nothing wraps and
+     * no per-glyph scale is introduced.
+     */
+    if (totalAdvance > totalArc) {
+      const targetFontSize = Math.max(
         minFontSize,
-        fontSize * availableArc / totalAdvance
+        fontSize * totalArc / totalAdvance
       );
 
+      fontSize = targetFontSize;
       metrics = measureAt(fontSize);
-      totalAdvance = totalAdvanceFor(metrics, fontSize);
+      letterGap = Math.min(2.5, fontSize * requestedLetterGapRatio);
+      totalAdvance = sumAdvances(metrics) +
+        Math.max(0, chars.length - 1) * letterGap;
     }
 
-    const gap = Math.min(2.5, fontSize * letterGapRatio);
+    if (totalAdvance > totalArc && chars.length > 1) {
+      const advanceOnly = sumAdvances(metrics);
+      letterGap = Math.max(
+        0,
+        (totalArc - advanceOnly) / (chars.length - 1)
+      );
+
+      totalAdvance = advanceOnly +
+        Math.max(0, chars.length - 1) * letterGap;
+    }
+
+    /*
+     * If an extremely long string still cannot fit at minFontSize with zero
+     * spacing, lower the font uniformly just enough to guarantee containment.
+     * This is a global scale decision, never a per-character correction.
+     */
+    if (totalAdvance > totalArc) {
+      const finalScale = totalArc / totalAdvance;
+      fontSize *= finalScale;
+      metrics = measureAt(fontSize);
+      letterGap = 0;
+      totalAdvance = sumAdvances(metrics);
+    }
 
     const textures = [];
     const glyphs = [];
@@ -957,47 +940,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const projectionView = multiply4x4(projection, camera);
 
-    function modelMatrixForGlyph(u, width, height) {
-      const surfacePoint = getRibbonSurfacePoint(u, TEXT_SURFACE_V);
-      const frame = getRibbonSurfaceFrame(u);
+    function modelMatrixForGlyph(theta, width, height) {
+      const curve = ribbonPoint(theta);
+      const normal = ribbonNormal(theta);
+      const frame = ribbonFrame(theta);
 
-      /*
-       * Character position is literally:
-       *
-       *     ribbon surface point + surface normal * TEXT_OFFSET
-       *
-       * No constant-Z shortcut is used.
-       */
       const position = {
-        x: surfacePoint.x + frame.normal.x * TEXT_OFFSET,
-        y: surfacePoint.y + frame.normal.y * TEXT_OFFSET,
-        z: surfacePoint.z + frame.normal.z * TEXT_OFFSET
+        x: curve.x - centerX + normal.x * TEXT_OFFSET,
+        y: centerY - curve.y + normal.y * TEXT_OFFSET,
+        z: curve.z + normal.z * TEXT_OFFSET
       };
 
       /*
-       * The glyph's local axes are:
-       *
-       *   +X = surface tangent T
-       *   +Y = surface binormal B
-       *   +Z = outward surface normal N
-       *
-       * This is the complete local surface frame. No Euler-angle correction
-       * or name-specific rotation is applied.
+       * The model columns are exactly the requested local basis:
+       *   +X = tangent
+       *   +Y = world UP
+       *   +Z = outward ribbon normal
        */
       return new Float32Array([
-        frame.tangent.x * width,
-        frame.tangent.y * width,
-        frame.tangent.z * width,
+        frame.xAxis.x * width,
+        frame.xAxis.y * width,
+        frame.xAxis.z * width,
         0,
 
-        frame.binormal.x * height,
-        frame.binormal.y * height,
-        frame.binormal.z * height,
+        frame.yAxis.x * height,
+        frame.yAxis.y * height,
+        frame.yAxis.z * height,
         0,
 
-        frame.normal.x,
-        frame.normal.y,
-        frame.normal.z,
+        frame.zAxis.x,
+        frame.zAxis.y,
+        frame.zAxis.z,
         0,
 
         position.x,
@@ -1006,7 +979,7 @@ document.addEventListener("DOMContentLoaded", () => {
         1
       ]);
     }
-
+    
     function draw() {
       if (!document.documentElement.contains(canvas)) return;
 
