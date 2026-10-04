@@ -653,40 +653,64 @@ document.addEventListener("DOMContentLoaded", () => {
     function getRibbonSurfaceFrame(u) {
       const { Su, Sv } = getRibbonSurfaceDerivatives(u);
 
+      /*
+       * Build the frame from the differential geometry of the SAME ribbon
+       * surface. The old implementation used nested cross products followed
+       * by a world-up sign flip. That sign heuristic can change the handedness
+       * of the frame and is therefore not a valid orientation construction for
+       * arbitrary glyph samples.
+       *
+       * 1. T is the unit surface tangent.
+       * 2. Ns is the outward surface normal.
+       * 3. B is the surface normal projected into the plane perpendicular to T
+       *    (Gram-Schmidt), so it is the unique continuous surface-up direction
+       *    closest to the ribbon's actual normal field.
+       * 4. N is reconstructed from T and B, giving a right-handed orthonormal
+       *    frame with no sign heuristic, Euler correction, or name-dependent
+       *    branch.
+       */
       const tangent = normalize(Su);
-      let normal = normalize(cross(Sv, tangent));
 
+      let surfaceNormal = normalize(cross(Sv, tangent));
+
+      /*
+       * The ribbon front must face the camera. This is an orientation of the
+       * surface normal itself, not a per-glyph frame correction.
+       */
       const cameraForward = { x: 0, y: 0, z: 1 };
 
-      if (dot(normal, cameraForward) < 0) {
-        normal.x *= -1;
-        normal.y *= -1;
-        normal.z *= -1;
+      if (dot(surfaceNormal, cameraForward) < 0) {
+        surfaceNormal.x *= -1;
+        surfaceNormal.y *= -1;
+        surfaceNormal.z *= -1;
       }
 
       /*
-       * B is generated from the surface normal and tangent, so it is the
-       * actual local surface-up direction rather than an independently
-       * guessed Euler rotation.
+       * Gram-Schmidt projection:
+       *
+       *     B = normalize(Ns - T * dot(Ns,T))
+       *
+       * Ns is theoretically perpendicular to T already, but explicitly
+       * projecting it makes the frame robust against numerical drift and
+       * guarantees B is orthogonal to the glyph's tangent.
        */
-      let binormal = normalize(cross(normal, tangent));
+      const normalComponent = dot(surfaceNormal, tangent);
+      let binormal = {
+        x: surfaceNormal.x - tangent.x * normalComponent,
+        y: surfaceNormal.y - tangent.y * normalComponent,
+        z: surfaceNormal.z - tangent.z * normalComponent
+      };
+      binormal = normalize(binormal);
 
       /*
-       * Keep the local vertical axis continuous and camera-readable.
-       * This is a deterministic continuity check, not a name-specific
-       * rotation correction.
+       * Reconstruct N from the two orthogonal axes. This locks the handedness
+       * of the glyph frame:
+       *
+       *     T × B = N
+       *
+       * There is no world-up comparison that can suddenly flip one glyph.
        */
-      const worldUp = { x: 0, y: 1, z: 0 };
-
-      if (dot(binormal, worldUp) < 0) {
-        binormal.x *= -1;
-        binormal.y *= -1;
-        binormal.z *= -1;
-
-        normal.x *= -1;
-        normal.y *= -1;
-        normal.z *= -1;
-      }
+      const normal = normalize(cross(tangent, binormal));
 
       return { tangent, binormal, normal };
     }
