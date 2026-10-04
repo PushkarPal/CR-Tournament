@@ -576,9 +576,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const BOW_HEIGHT = 0.105;
 
     const surfaceCenterX = ribbonRect.left + ribbonRect.width * 0.50;
-    const surfaceBaseY = ribbonRect.top + ribbonRect.height * FRONT_CENTER_Y;
     const frontHalfHeightPx = ribbonRect.height * FRONT_HALF_HEIGHT;
     const bowHeightPx = ribbonRect.height * BOW_HEIGHT;
+
+    /*
+     * surfaceBaseY is the edge-of-face reference. Subtracting the bow at
+     * u=0 therefore lands the centerline exactly at FRONT_CENTER_Y.
+     */
+    const surfaceBaseY =
+      ribbonRect.top +
+      ribbonRect.height * (FRONT_CENTER_Y + BOW_HEIGHT);
 
     const centerX = viewportWidth * 0.5;
     const centerY = viewportHeight * 0.5;
