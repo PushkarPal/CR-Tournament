@@ -3146,8 +3146,8 @@ button,
   background-image: none !important;
   filter: none !important;
   box-shadow: none !important;
-  width: 38vw !important;
-  height: 35.3vh !important;
+  width: 35vw !important;
+  height: 32.5vh !important;
   margin-left: 0 !important;
   overflow: visible !important;
   transform-origin: center center !important;
@@ -3166,24 +3166,24 @@ button,
 .crown-middle {
   left: 67vw !important;
   top: 30vh !important;
-  width: 38vw !important;
-  height: 35.3vh !important;
+  width: 35vw !important;
+  height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-left {
-  left: 54.5vw !important;
+  left: 52vw !important;
   top: 33vh !important;
-  width: 38vw !important;
-  height: 35.3vh !important;
+  width: 35vw !important;
+  height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
 .crown-right {
-  left: 79.5vw !important;
+  left: 82vw !important;
   top: 33vh !important;
-  width: 38vw !important;
-  height: 35.3vh !important;
+  width: 35vw !important;
+  height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
 }
 
@@ -3226,12 +3226,12 @@ button,
   }
 
   .crown-left {
-    left: 54.5vw !important;
+    left: 52vw !important;
     top: 34vh !important;
   }
 
   .crown-right {
-    left: 79.5vw !important;
+    left: 82vw !important;
     top: 34vh !important;
   }
 }
