@@ -345,21 +345,206 @@ document.addEventListener("DOMContentLoaded", () => {
   function shapeChampionName(name) {
     const node = document.getElementById("champion-name");
     if (!node) return;
-    node.innerHTML = "";
 
-    const chars = Array.from(String(name || ""));
-    const width = Math.min(680, Math.max(260, window.innerWidth * 0.58));
-    const center = (chars.length - 1) / 2;
+    node.innerHTML = "";
+    const text = String(name || "");
+    const chars = Array.from(text);
+    if (!chars.length) return;
+
+    /*
+     * The ribbon artwork is a 2D image, not a 3D mesh, so its front
+     * centerline is approximated with one continuous 3D parametric curve.
+     *
+     * u ∈ [-1, 1]
+     * P(u) = (x(u), y(u), z(u))
+     *
+     * The z component is deliberately non-constant: the center of the
+     * ribbon projects toward the viewer while the ends recede.
+     */
+    const ribbon = document.querySelector(".champion-ribbon img");
+    const ribbonWidth = ribbon ? ribbon.getBoundingClientRect().width : window.innerWidth * 0.72;
+    const usableWidth = Math.max(220, ribbonWidth * 0.68);
+    const maxFontSize = Math.min(54, Math.max(28, window.innerWidth * 0.031));
+    const minFontSize = 18;
+    const curveDepth = Math.min(72, Math.max(34, ribbonWidth * 0.045));
+    const curveHeight = Math.min(54, Math.max(24, ribbonWidth * 0.034));
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const fontFamily = "'You Blockhead', sans-serif";
+
+    function measureAt(fontSize) {
+      ctx.font = `normal ${fontSize}px ${fontFamily}`;
+      return chars.map(char => {
+        const glyph = char === " " ? "\u00a0" : char;
+        const metrics = ctx.measureText(glyph);
+        return Math.max(1, metrics.width);
+      });
+    }
+
+    let fontSize = maxFontSize;
+    let widths = measureAt(fontSize);
+    let totalWidth = widths.reduce((sum, value) => sum + value, 0);
+
+    if (totalWidth > usableWidth) {
+      fontSize = Math.max(minFontSize, fontSize * (usableWidth / totalWidth));
+      widths = measureAt(fontSize);
+      totalWidth = widths.reduce((sum, value) => sum + value, 0);
+    }
+
+    const gap = Math.min(3, fontSize * 0.045);
+    totalWidth += Math.max(0, chars.length - 1) * gap;
+
+    if (totalWidth > usableWidth) {
+      const scale = usableWidth / totalWidth;
+      fontSize = Math.max(minFontSize, fontSize * scale);
+      widths = measureAt(fontSize);
+      totalWidth = widths.reduce((sum, value) => sum + value, 0) +
+        Math.max(0, chars.length - 1) * gap;
+    }
+
+    const halfSpan = Math.max(100, Math.min(usableWidth * 0.5, totalWidth * 0.58));
+
+    const curvePoint = (u) => ({
+      x: halfSpan * u,
+      y: -curveHeight * (1 - u * u),
+      z: curveDepth * (1 - u * u)
+    });
+
+    const curveTangent = (u) => {
+      const tx = halfSpan;
+      const ty = 2 * curveHeight * u;
+      const tz = -2 * curveDepth * u;
+      const length = Math.hypot(tx, ty, tz) || 1;
+      return { x: tx / length, y: ty / length, z: tz / length };
+    };
+
+    /*
+     * Build an arc-length lookup so glyphs are placed by their actual
+     * advance widths rather than by character count.
+     */
+    const samples = 320;
+    const arc = new Array(samples + 1);
+    arc[0] = { u: -1, length: 0 };
+    let accumulated = 0;
+    let previous = curvePoint(-1);
+
+    for (let i = 1; i <= samples; i++) {
+      const u = -1 + (2 * i) / samples;
+      const point = curvePoint(u);
+      accumulated += Math.hypot(
+        point.x - previous.x,
+        point.y - previous.y,
+        point.z - previous.z
+      );
+      arc[i] = { u, length: accumulated };
+      previous = point;
+    }
+
+    const totalArc = accumulated;
+    const targetHalfArc = Math.min(totalArc * 0.48, totalWidth * 0.52);
+    const usableArc = targetHalfArc * 2;
+    const arcScale = totalWidth > usableArc ? usableArc / totalWidth : 1;
+
+    if (arcScale < 1) {
+      fontSize = Math.max(minFontSize, fontSize * arcScale);
+      widths = measureAt(fontSize);
+      totalWidth = widths.reduce((sum, value) => sum + value, 0) +
+        Math.max(0, chars.length - 1) * gap;
+    }
+
+    function uAtArcDistance(distance) {
+      const target = Math.max(0, Math.min(totalArc, distance));
+      let low = 0;
+      let high = arc.length - 1;
+
+      while (low < high) {
+        const mid = (low + high) >> 1;
+        if (arc[mid].length < target) low = mid + 1;
+        else high = mid;
+      }
+
+      const hi = arc[low];
+      const lo = arc[Math.max(0, low - 1)];
+      const span = hi.length - lo.length || 1;
+      const blend = (target - lo.length) / span;
+      return lo.u + (hi.u - lo.u) * blend;
+    }
+
+    let cursor = -totalWidth / 2;
 
     chars.forEach((char, i) => {
       const span = document.createElement("span");
       span.textContent = char === " " ? "\u00a0" : char;
-      const x = (i - center) * Math.min(48, width / Math.max(chars.length, 1));
-      const t = center ? (i - center) / center : 0;
-      const y = -30 * (1 - t * t);
-      const angle = center ? (11 * t) : 0;
-      span.style.transform = `translate(calc(-50% + ${x}px), ${y}px) rotate(${angle}deg)`;
+      span.className = "champion-name-glyph";
+      span.style.fontSize = `${fontSize}px`;
+      span.style.width = `${Math.max(1, widths[i])}px`;
+      span.style.height = `${fontSize * 1.15}px`;
+      span.style.marginLeft = `${-Math.max(1, widths[i]) / 2}px`;
+      span.style.marginTop = `${-(fontSize * 1.15) / 2}px`;
+
+      const centerDistance = cursor + widths[i] / 2;
+      const arcDistance = totalArc / 2 + centerDistance;
+      const u = uAtArcDistance(arcDistance);
+      const point = curvePoint(u);
+      const tangent = curveTangent(u);
+
+      /*
+       * Stable parallel frame:
+       *   X axis = curve tangent
+       *   Y axis = projected screen-up direction
+       *   Z axis = outward ribbon normal
+       *
+       * This gives every glyph a real 3D orientation instead of a
+       * collection of independent 2D rotations.
+       */
+      const up = { x: 0, y: 1, z: 0 };
+      const dot = tangent.y;
+      let yAxis = {
+        x: up.x - tangent.x * dot,
+        y: up.y - tangent.y * dot,
+        z: up.z - tangent.z * dot
+      };
+      const yLength = Math.hypot(yAxis.x, yAxis.y, yAxis.z) || 1;
+      yAxis = {
+        x: yAxis.x / yLength,
+        y: yAxis.y / yLength,
+        z: yAxis.z / yLength
+      };
+
+      let zAxis = {
+        x: tangent.y * yAxis.z - tangent.z * yAxis.y,
+        y: tangent.z * yAxis.x - tangent.x * yAxis.z,
+        z: tangent.x * yAxis.y - tangent.y * yAxis.x
+      };
+      const zLength = Math.hypot(zAxis.x, zAxis.y, zAxis.z) || 1;
+      zAxis = {
+        x: zAxis.x / zLength,
+        y: zAxis.y / zLength,
+        z: zAxis.z / zLength
+      };
+
+      if (zAxis.z < 0) {
+        zAxis.x *= -1;
+        zAxis.y *= -1;
+        zAxis.z *= -1;
+        yAxis.x *= -1;
+        yAxis.y *= -1;
+        yAxis.z *= -1;
+      }
+
+      /*
+       * CSS matrix3d is column-major. Its first three columns are the
+       * glyph's local X/Y/Z axes; the last column is P(t), including Z.
+       */
+      span.style.transform =
+        `matrix3d(${tangent.x},${tangent.y},${tangent.z},0,` +
+        `${yAxis.x},${yAxis.y},${yAxis.z},0,` +
+        `${zAxis.x},${zAxis.y},${zAxis.z},0,` +
+        `${point.x},${point.y},${point.z},1)`;
+
       node.appendChild(span);
+      cursor += widths[i] + gap;
     });
   }
 
@@ -510,6 +695,13 @@ document.addEventListener("DOMContentLoaded", () => {
       resizeFrame = 0;
       adaptTeamSizing();
       drawLines();
+      const splash = document.getElementById("champion-splash");
+      if (splash && splash.classList.contains("show")) {
+        const championName = document.getElementById("champion-name");
+        if (championName) {
+          shapeChampionName(championName.textContent.replace(/\u00a0/g, " "));
+        }
+      }
     });
   });
 
