@@ -3165,7 +3165,7 @@ button,
 
 .crown-middle {
   left: 67vw !important;
-  top: 32vh !important;
+  top: 34vh !important;
   width: 35vw !important;
   height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
@@ -3173,7 +3173,7 @@ button,
 
 .crown-left {
   left: 52vw !important;
-  top: 35vh !important;
+  top: 37vh !important;
   width: 35vw !important;
   height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
@@ -3181,7 +3181,7 @@ button,
 
 .crown-right {
   left: 82vw !important;
-  top: 35vh !important;
+  top: 37vh !important;
   width: 35vw !important;
   height: 32.5vh !important;
   transform: translate(-50%, 35px) scale(.72) !important;
@@ -3222,16 +3222,16 @@ button,
 
   .crown-middle {
     left: 67vw !important;
-    top: 33vh !important;
+    top: 35vh !important;
   }
 
   .crown-left {
     left: 52vw !important;
-    top: 36vh !important;
+    top: 38vh !important;
   }
 
   .crown-right {
     left: 82vw !important;
-    top: 36vh !important;
+    top: 38vh !important;
   }
 }
