@@ -356,8 +356,8 @@ document.addEventListener("DOMContentLoaded", () => {
       span.textContent = char === " " ? "\u00a0" : char;
       const x = (i - center) * Math.min(48, width / Math.max(chars.length, 1));
       const t = center ? (i - center) / center : 0;
-      const y = -18 * (1 - t * t);
-      const angle = center ? (18 * t) : 0;
+      const y = -30 * (1 - t * t);
+      const angle = center ? (11 * t) : 0;
       span.style.transform = `translate(calc(-50% + ${x}px), ${y}px) rotate(${angle}deg)`;
       node.appendChild(span);
     });
