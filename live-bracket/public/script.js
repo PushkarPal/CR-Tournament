@@ -477,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const span = document.createElement("span");
       span.textContent = char === " " ? "\u00a0" : char;
       span.className = "champion-name-glyph";
-      span.style.fontSize = `${fontSize}px`;
+      span.style.setProperty("font-size", `${fontSize}px`, "important");
       span.style.width = `${Math.max(1, widths[i])}px`;
       span.style.height = `${fontSize * 1.15}px`;
       span.style.marginLeft = `${-Math.max(1, widths[i]) / 2}px`;
