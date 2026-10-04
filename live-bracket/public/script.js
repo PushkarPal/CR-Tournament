@@ -431,6 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const centerY = viewportHeight * 0.5;
 
     canvas.width = Math.max(1, Math.round(viewportWidth * dpr));
     canvas.height = Math.max(1, Math.round(viewportHeight * dpr));
@@ -640,29 +641,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const worldUp = { x: 0, y: 1, z: 0 };
 
       /*
-       * Y = Z × X. For the cylindrical equations above this is exactly
-       * (0,1,0) for every theta, so it can never flip at a character.
+       * The cylindrical model explicitly fixes local Y to world UP. There is
+       * no frame-solving branch here and therefore no opportunity for a
+       * short string to trigger a different orientation.
+       *
+       * Recompute X from Y × Z so the final basis is exactly right-handed.
        */
-      let yAxis = normalize(cross(zAxis, xAxis));
-
-      /*
-       * Recompute X from Y × Z to remove any floating-point drift while
-       * preserving the same right-handed basis.
-       */
+      const yAxis = worldUp;
       const correctedX = normalize(cross(yAxis, zAxis));
-
-      /*
-       * worldUp is retained as the defining reference for the vertical axis.
-       * The analytical cylinder already produces the same vector, so no sign
-       * branch is required.
-       */
-      if (
-        Math.abs(yAxis.x - worldUp.x) > 1e-7 ||
-        Math.abs(yAxis.y - worldUp.y) > 1e-7 ||
-        Math.abs(yAxis.z - worldUp.z) > 1e-7
-      ) {
-        yAxis = worldUp;
-      }
 
       return {
         xAxis: correctedX,
@@ -1058,7 +1044,7 @@ document.addEventListener("DOMContentLoaded", () => {
           4
         );
 
-        cursor += metric.advance + gap;
+        cursor += metric.advance + letterGap;
       });
     }
 
