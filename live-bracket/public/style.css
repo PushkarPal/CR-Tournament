@@ -3172,7 +3172,7 @@ button,
 }
 
 .crown-left {
-  left: 52vw !important;
+  left: 54.5vw !important;
   top: 33vh !important;
   width: 38vw !important;
   height: 35.3vh !important;
@@ -3180,7 +3180,7 @@ button,
 }
 
 .crown-right {
-  left: 82vw !important;
+  left: 79.5vw !important;
   top: 33vh !important;
   width: 38vw !important;
   height: 35.3vh !important;
@@ -3226,12 +3226,12 @@ button,
   }
 
   .crown-left {
-    left: 52vw !important;
+    left: 54.5vw !important;
     top: 34vh !important;
   }
 
   .crown-right {
-    left: 82vw !important;
+    left: 79.5vw !important;
     top: 34vh !important;
   }
 }
